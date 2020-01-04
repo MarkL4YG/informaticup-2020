@@ -1,6 +1,6 @@
 
 from bottle import post, request, run, BaseRequest
-from models.gamestate import state_from_json
+from docker.python.models.gamestate import state_from_json
 import os
 
 @post("/")

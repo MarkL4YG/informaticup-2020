@@ -320,8 +320,10 @@ class City:
         return self._events
 
     @staticmethod
-    def from_json(city_name, city_json):
-        city = City(city_name)
+    def from_json(city_json):
+        # remove U+200E LEFT-TO-RIGHT MARK character
+        name = city_json['name'].strip('\u200e')
+        city = City(name)
         city._latitude = city_json['latitude']
         city._longitude = city_json['longitude']
         city._population = city_json['population']

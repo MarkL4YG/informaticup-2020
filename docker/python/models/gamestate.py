@@ -36,7 +36,7 @@ def state_from_json(json) -> GameState:
     state._round = json['round']
     state._outcome = json['outcome']
     state._points = json['points']
-    for cityName, cityJson in json['cities']:
-        city = City.from_json(cityName, cityJson)
-        state.get_cities().__add__(city)
+    for cityJson in json['cities'].values():
+        city = City.from_json(cityJson)
+        state.get_cities().__add__([city])
     return state
