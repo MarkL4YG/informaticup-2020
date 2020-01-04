@@ -262,12 +262,20 @@ all_cities = [
 ]
 
 
+def get_city_id(city_name) -> int:
+    return all_cities.index(city_name)
+
+
+def get_city_name(city_id) -> str:
+    return all_cities[city_id]
+
+
 class City:
 
     def __init__(self, name) -> None:
         super().__init__()
         self._name = name
-        self._index = all_cities.index(name)
+        self._index = get_city_id(name)
         self._latitude = 0.0
         self._longitude = 0.0
         self._population = 0
@@ -328,5 +336,7 @@ class City:
     def strength_to_int(stren) -> int:
         if "+" in stren:
             return len(stren)
+        elif "o" is stren:
+            return 0
         else:
             return -len(stren)
