@@ -17,5 +17,6 @@ jobs:
       uses: HurricanKai/Publish-Docker-Github-Action@master
       with:
         name: markl4yg/informaticup-2020
+        dockerimage: docker/Dockerimage 
         username: ${{ secrets.DOCKER_USERNAME }}
         password: ${{ secrets.DOCKER_PASSWORD }}
