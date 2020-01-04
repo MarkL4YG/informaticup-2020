@@ -3,10 +3,10 @@ from bottle import post, request, run, BaseRequest
 from docker.python.models.gamestate import state_from_json
 import os
 
+
 @post("/")
 def index():
     game_json = request.json
-    print(f'round: {game_json["round"]}, outcome: {game_json["outcome"]}')
     state = state_from_json(game_json)
     print(f'round: {state.get_round()}, outcome: {state.get_outcome()}')
     return {"type": "endRound"}
