@@ -11,8 +11,9 @@ jobs:
     steps:
     - uses: actions/checkout@v1
     - name: Build the Docker image
-      working-directory: ./docker/
       run: |
-        docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_USERNAME }}
+        cd docker/
+        docker login -u "${{ secrets.DOCKER_USERNAME }}" -p "${{ secrets.DOCKER_PASSWORD }}"
         docker build . --file Dockerfile --tag markl4yg/informaticup-2020:latest
         docker push markl4yg/informaticup-2020:latest
+      
