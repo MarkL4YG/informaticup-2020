@@ -30,7 +30,9 @@ class Event:
     def from_json(event_json):
         event = Event()
         event._eventType = event_json['type']
-        event._sinceRound = int(event_json['sinceRound'])
+
+        if 'sinceRound' in event_json:
+            event._sinceRound = int(event_json['sinceRound'])
 
         if 'pathogen' in event_json:
             event._pathogen = Pathogen.from_json(event_json['pathogen'])

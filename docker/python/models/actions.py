@@ -84,7 +84,7 @@ def deploy_medication(pathogen_id, city_id) -> Action:
     }, 10)
 
 
-def use_political_influence(city_id) -> Action:
+def exert_political_influence(city_id) -> Action:
     city_name = get_city_name(city_id)
     return Action({
         "type": "exertInfluence",
@@ -108,7 +108,7 @@ def apply_hygienic_measures(city_id) -> Action:
     }, 3)
 
 
-def spread_information(city_id) -> Action:
+def launch_campaign(city_id) -> Action:
     city_name = get_city_name(city_id)
     return Action({
         "type": "launchCampaign",
@@ -116,15 +116,42 @@ def spread_information(city_id) -> Action:
     }, 3)
 
 
-def generate_possible_actions(gamestate):
+def generate_possible_actions(game_state):
     actions = [end_round()]
-    for city in gamestate.get_cities():
+
+    available_points = game_state.get_available_points()
+
+    for city in game_state.get_cities():
         city_id = city.get_city_id()
-        actions.append(use_political_influence(city_id))
-        actions.append(call_for_elections(city_id))
-        actions.append(apply_hygienic_measures(city_id))
-        actions.append(spread_information(city_id))
-        for i in range(1, 6):
-            actions.append(quarantine_city(city_id, i))
-            actions.append(close_airport(city_id, i))
+
+        if available_points >= 3:
+            actions.append(exert_political_influence(city_id))
+            actions.append(call_for_elections(city_id))
+            actions.append(apply_hygienic_measures(city_id))
+            actions.append(launch_campaign(city_id))
+
+        if available_points > 20:
+            for i in range(1, int((available_points - 15) / 5) + 1):
+                actions.append(close_airport(city_id, i))
+
+        if available_points > 30:
+            for i in range(1, int((available_points - 20) / 10) + 1):
+                actions.append(quarantine_city(city_id, i))
+
+        for pathogen in game_state.get_pathogens():
+
+            if available_points >= 5 and pathogen in game_state.get_pathogens_with_vaccination():
+                actions.append(deploy_vaccine(pathogen.get_id(), city_id))
+
+            if available_points >= 10 and pathogen in game_state.get_pathogens_with_medication():
+                actions.append(deploy_medication(pathogen.get_id(), city_id))
+
+    for pathogen in game_state.get_pathogens():
+
+        if available_points >= 40 and pathogen not in game_state.get_pathogens_with_vaccination():
+            actions.append(develop_vaccine(pathogen.get_id()))
+
+        if available_points >= 20 and pathogen not in game_state.get_pathogens_with_medication():
+                actions.append(develop_medication(pathogen.get_id()))
+
     return actions

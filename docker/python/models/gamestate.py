@@ -11,6 +11,9 @@ class GameState:
         self._points = 0
         self._cities = []
         self._global_events = []
+        self._pathogens = []
+        self._pathogens_with_medication = []
+        self._pathogens_with_vaccination = []
         self._error = None
 
     def get_round(self):
@@ -28,6 +31,15 @@ class GameState:
     def get_global_events(self):
         return self._global_events
 
+    def get_pathogens(self):
+        return self._pathogens
+
+    def get_pathogens_with_vaccination(self):
+        return self._pathogens_with_vaccination
+
+    def get_pathogens_with_medication(self):
+        return self._pathogens_with_medication
+
     def get_error(self):
         return self._error
 
@@ -41,8 +53,17 @@ def state_from_json(json) -> GameState:
         city = City.from_json(cityJson)
         state.get_cities().append(city)
 
-    for eventJson in json['events'].values():
+    for eventJson in json['events']:
         event = Event.from_json(eventJson)
         state.get_global_events().append(event)
+
+        if event.get_event_type() == 'pathogenEncountered':
+            state.get_pathogens().append(event.get_pathogen())
+
+        if event.get_event_type() == 'vaccineAvailable':
+            state.get_pathogens_with_vaccination().append(event.get_pathogen())
+
+        if event.get_event_type() == 'medicationAvailable':
+            state.get_pathogens_with_medication().append(event.get_pathogen())
 
     return state

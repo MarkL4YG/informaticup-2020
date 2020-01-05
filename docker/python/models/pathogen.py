@@ -39,7 +39,7 @@ def get_pathogen_name(pathogen_id) -> str:
 class Pathogen:
 
     def __init__(self, pathogen_name):
-        super().__init__(self)
+        super().__init__()
         self._name = pathogen_name
         self._index = get_pathogen_id(pathogen_name)
         self._infectivity = 0
