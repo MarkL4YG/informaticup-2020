@@ -12,6 +12,7 @@ from docker.python.models.round import Round
 LOG_FILE = "../../log.txt"
 rounds: List[Round] = []
 
+
 def log_to_file(text):
     with open(LOG_FILE, "a", encoding="utf-8") as f:
         f.write(f'{text}\n')
@@ -45,9 +46,9 @@ def index():
         action = process_round(state)
         rounds.append(Round(state, action))
         print(action.get_json())
-        log_to_file(action)
+        log_to_file(action.get_json())
         log_to_file("")
-        return action
+        return action.get_json()
     else:
         process_game_end(rounds)
         return end_round()
