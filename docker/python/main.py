@@ -1,7 +1,5 @@
 import csv
 import importlib
-import random
-from typing import List, Any
 
 from bottle import post, request, run, BaseRequest
 
@@ -9,7 +7,8 @@ from docker.python.models.actions import generate_possible_actions, end_round
 from docker.python.models.gamestate import state_from_json
 import os
 
-LOG_FILE = "../../output/log.txt"
+APPROACH = "random"
+LOG_FILE = f'../../output/{APPROACH}_log.txt'
 
 
 def log_to_file(text):
@@ -24,13 +23,13 @@ def clear_log_file():
 
 
 def process_round(state):
-    my_module = importlib.import_module('approaches.random')
+    my_module = importlib.import_module(f'approaches.{APPROACH}')
     return my_module.process_round(state)
 
 
 def process_game_end(state):
     # process end of game
-    with open('../../output/results.csv', 'a', newline='') as resultFile:
+    with open(f'../../output/{APPROACH}_results.csv', 'a', newline='') as resultFile:
         writer = csv.writer(resultFile, delimiter=',')
         writer.writerow([state.get_outcome(), state.get_round()])
 
