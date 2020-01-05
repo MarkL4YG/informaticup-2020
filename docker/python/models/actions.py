@@ -22,8 +22,8 @@ class Actions:
         city_name = get_city_name(city_id)
         return {
             "type": "closeAirport",
-            "rounds": number_of_rounds,
-            "city": city_name
+            "city": city_name,
+            "rounds": number_of_rounds
         }
 
     @staticmethod
@@ -96,3 +96,16 @@ class Actions:
             "type": "launchCampaign",
             "city": city_name
         }
+
+    @staticmethod
+    def generate_possible_actions(gamestate):
+        actions = [Actions.end_round()]
+        for city in gamestate.get_cities():
+            city_id = city.get_city_id()
+            actions.append(Actions.use_political_influence(city_id))
+            actions.append(Actions.call_for_elections(city_id))
+            actions.append(Actions.spread_information(city_id))
+            for i in range(1, 3):
+                actions.append(Actions.quarantine_city(city_id, i))
+                actions.append(Actions.close_airport(city_id, i))
+        return actions

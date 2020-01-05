@@ -1,3 +1,4 @@
+import random
 from typing import List, Any
 
 from bottle import post, request, run, BaseRequest
@@ -24,7 +25,9 @@ def clear_log_file():
 
 def process_round(state):
     # process a round and generate actions
-    return Actions.end_round()
+    action = random.choice(Actions.generate_possible_actions(state))
+    print(action)
+    return action
 
 
 def process_game_end(rounds):
