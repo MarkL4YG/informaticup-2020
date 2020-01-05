@@ -1,3 +1,4 @@
+from models.event import Event
 from models.format_utils import strength_to_int
 
 
@@ -336,5 +337,8 @@ class City:
         city._governmentStability = strength_to_int(city_json['government'])
         city._hygieneStandards = strength_to_int(city_json['hygiene'])
         city._populationAwareness = strength_to_int(city_json['awareness'])
+        for eventJson in city_json['event'].values():
+            event = Event.from_json(eventJson)
+            city._events.append(event)
         return city
 
