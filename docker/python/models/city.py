@@ -266,7 +266,8 @@ all_cities = [
 
 
 def get_city_id(city_name) -> int:
-    return all_cities.index(city_name)
+    sanitized_name = city_name.strip('\u200e')
+    return all_cities.index(sanitized_name)
 
 
 def get_city_name(city_id) -> str:
