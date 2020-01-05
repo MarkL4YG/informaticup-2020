@@ -2,110 +2,129 @@ from models.city import get_city_name
 from models.pathogen import get_pathogen_name
 
 
-class Actions:
+class Action:
 
-    @staticmethod
-    def end_round() -> dict:
-        return {"type": "endRound"}
+    def __init__(self, json, cost):
+        self._json = json
+        self._cost = cost
 
-    @staticmethod
-    def quarantine_city(city_id, number_of_rounds=1) -> dict:
-        city_name = get_city_name(city_id)
-        return {
-            "type": "putUnderQuarantine",
-            "city": city_name,
-            "rounds": number_of_rounds
-        }
+    def get_json(self):
+        return self._json
 
-    @staticmethod
-    def close_airport(city_id, number_of_rounds=1) -> dict:
-        city_name = get_city_name(city_id)
-        return {
-            "type": "closeAirport",
-            "city": city_name,
-            "rounds": number_of_rounds
-        }
+    def get_cost(self):
+        return self._cost
 
-    @staticmethod
-    def close_airway(from_city_id, to_city_id, number_of_rounds=1) -> dict:
-        from_city_name = get_city_name(from_city_id)
-        to_city_name = get_city_name(to_city_id)
-        return {
-            "type": "closeConnection",
-            "fromCity": from_city_name,
-            "toCity": to_city_name,
-            "rounds": number_of_rounds
-        }
 
-    @staticmethod
-    def develop_vaccine(pathogen_id) -> dict:
-        pathogen_name = get_pathogen_name(pathogen_id)
-        return {
-            "type": "developVaccine",
-            "pathogen": pathogen_name
-        }
+def end_round() -> Action:
+    return Action({"type": "endRound"}, 0)
 
-    @staticmethod
-    def deploy_vaccine(pathogen_id, city_id) -> dict:
-        pathogen_name = get_pathogen_name(pathogen_id)
-        city_name = get_city_name(city_id)
-        return {
-            "type": "deployVaccine",
-            "pathogen": pathogen_name,
-            "city": city_name
-        }
 
-    @staticmethod
-    def develop_medication(pathogen_id) -> dict:
-        pathogen_name = get_pathogen_name(pathogen_id)
-        return {
-            "type": "developMedication",
-            "pathogen": pathogen_name
-        }
+def quarantine_city(city_id, number_of_rounds=1) -> Action:
+    city_name = get_city_name(city_id)
+    return Action({
+        "type": "putUnderQuarantine",
+        "city": city_name,
+        "rounds": number_of_rounds
+    }, 20 + 10 * number_of_rounds)
 
-    @staticmethod
-    def deploy_medication(pathogen_id, city_id) -> dict:
-        pathogen_name = get_pathogen_name(pathogen_id)
-        city_name = get_city_name(city_id)
-        return {
-            "type": "deployMedication",
-            "pathogen": pathogen_name,
-            "city": city_name
-        }
 
-    @staticmethod
-    def use_political_influence(city_id) -> dict:
-        city_name = get_city_name(city_id)
-        return {
-            "type": "exertInfluence",
-            "city": city_name
-        }
+def close_airport(city_id, number_of_rounds=1) -> Action:
+    city_name = get_city_name(city_id)
+    return Action({
+        "type": "closeAirport",
+        "city": city_name,
+        "rounds": number_of_rounds
+    }, 15 + 5 * number_of_rounds)
 
-    @staticmethod
-    def call_for_elections(city_id) -> dict:
-        city_name = get_city_name(city_id)
-        return {
-            "type": "callElections",
-            "city": city_name
-        }
 
-    @staticmethod
-    def spread_information(city_id) -> dict:
-        city_name = get_city_name(city_id)
-        return {
-            "type": "launchCampaign",
-            "city": city_name
-        }
+def close_airway(from_city_id, to_city_id, number_of_rounds=1) -> Action:
+    from_city_name = get_city_name(from_city_id)
+    to_city_name = get_city_name(to_city_id)
+    return Action({
+        "type": "closeConnection",
+        "fromCity": from_city_name,
+        "toCity": to_city_name,
+        "rounds": number_of_rounds
+    }, 3 + 3 * number_of_rounds)
 
-    @staticmethod
-    def generate_possible_actions(gamestate):
-        actions = [Actions.end_round()]
-        for city in gamestate.get_cities():
-            city_id = city.get_city_id()
-            actions.append(Actions.use_political_influence(city_id))
-            actions.append(Actions.call_for_elections(city_id))
-            actions.append(Actions.spread_information(city_id))
-            for i in range(1, 3):
-                actions.append(Actions.quarantine_city(city_id, i))
-                actions.append(Actions.close_airport(city_id, i))
-        return actions
+
+def develop_vaccine(pathogen_id) -> Action:
+    pathogen_name = get_pathogen_name(pathogen_id)
+    return Action({
+        "type": "developVaccine",
+        "pathogen": pathogen_name
+    }, 40)
+
+
+def deploy_vaccine(pathogen_id, city_id) -> Action:
+    pathogen_name = get_pathogen_name(pathogen_id)
+    city_name = get_city_name(city_id)
+    return Action({
+        "type": "deployVaccine",
+        "pathogen": pathogen_name,
+        "city": city_name
+    }, 5)
+
+
+def develop_medication(pathogen_id) -> Action:
+    pathogen_name = get_pathogen_name(pathogen_id)
+    return Action({
+        "type": "developMedication",
+        "pathogen": pathogen_name
+    }, 20)
+
+
+def deploy_medication(pathogen_id, city_id) -> Action:
+    pathogen_name = get_pathogen_name(pathogen_id)
+    city_name = get_city_name(city_id)
+    return Action({
+        "type": "deployMedication",
+        "pathogen": pathogen_name,
+        "city": city_name
+    }, 10)
+
+
+def use_political_influence(city_id) -> Action:
+    city_name = get_city_name(city_id)
+    return Action({
+        "type": "exertInfluence",
+        "city": city_name
+    }, 3)
+
+
+def call_for_elections(city_id) -> Action:
+    city_name = get_city_name(city_id)
+    return Action({
+        "type": "callElections",
+        "city": city_name
+    }, 3)
+
+
+def apply_hygienic_measures(city_id) -> Action:
+    city_name = get_city_name(city_id)
+    return Action({
+        "type": "applyHygienicMeasures",
+        "city": city_name
+    }, 3)
+
+
+def spread_information(city_id) -> Action:
+    city_name = get_city_name(city_id)
+    return Action({
+        "type": "launchCampaign",
+        "city": city_name
+    }, 3)
+
+
+def generate_possible_actions(gamestate):
+    actions = [end_round()]
+    for city in gamestate.get_cities():
+        city_id = city.get_city_id()
+        actions.append(use_political_influence(city_id))
+        actions.append(call_for_elections(city_id))
+        actions.append(apply_hygienic_measures(city_id))
+        actions.append(spread_information(city_id))
+        for i in range(1, 6):
+            actions.append(quarantine_city(city_id, i))
+            actions.append(close_airport(city_id, i))
+    return actions
