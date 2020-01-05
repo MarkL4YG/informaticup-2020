@@ -1,3 +1,4 @@
+import csv
 import importlib
 import random
 from typing import List, Any
@@ -8,15 +9,13 @@ from docker.python.models.actions import generate_possible_actions, end_round
 from docker.python.models.gamestate import state_from_json
 import os
 
-from docker.python.models.round import Round
-
-LOG_FILE = "../../log.txt"
-rounds: List[Round] = []
+LOG_FILE = "../../output/log.txt"
 
 
 def log_to_file(text):
-    with open(LOG_FILE, "a", encoding="utf-8") as f:
-        f.write(f'{text}\n')
+    if os.getenv('LOG_ACTIONS', 'FALSE') == "TRUE":
+        with open(LOG_FILE, "a", encoding="utf-8") as f:
+            f.write(f'{text}\n')
 
 
 def clear_log_file():
@@ -29,26 +28,26 @@ def process_round(state):
     return my_module.process_round(state)
 
 
-def process_game_end(rounds):
+def process_game_end(state):
     # process end of game
-    rounds.clear()
+    with open('../../output/results.csv', 'a', newline='') as resultFile:
+        writer = csv.writer(resultFile, delimiter=',')
+        writer.writerow([state.get_outcome(), state.get_round()])
 
 
 @post("/")
 def index():
     game_json = request.json
-    log_to_file(game_json)
     state = state_from_json(game_json)
     print(f'round: {state.get_round()}, points: {state.get_available_points()}, outcome: {state.get_outcome()}')
     if state.get_outcome() == 'pending':
         action = process_round(state)
-        rounds.append(Round(state, action))
         print(action.get_json())
         log_to_file(action.get_json())
         log_to_file("")
         return action.get_json()
     else:
-        process_game_end(rounds)
+        process_game_end(state)
         return end_round()
 
 
