@@ -6,7 +6,7 @@ class Actions:
 
     @staticmethod
     def end_round() -> dict:
-        return {type: "endRound"}
+        return {"type": "endRound"}
 
     @staticmethod
     def quarantine_city(city_id, number_of_rounds=1) -> dict:
