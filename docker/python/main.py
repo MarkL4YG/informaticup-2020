@@ -11,7 +11,7 @@ from docker.python.models.round import Round
 
 LOG_FILE = "../../log.txt"
 rounds: List[Round] = []
-
+action_done = False
 
 def log_to_file(text):
     with open(LOG_FILE, "a", encoding="utf-8") as f:
@@ -26,7 +26,6 @@ def clear_log_file():
 def process_round(state):
     # process a round and generate actions
     action = random.choice(Actions.generate_possible_actions(state))
-    print(action)
     return action
 
 
@@ -41,14 +40,18 @@ def index():
     log_to_file(game_json)
     state = state_from_json(game_json)
     print(f'round: {state.get_round()}, outcome: {state.get_outcome()}')
-    if state.get_outcome() == 'pending':
+    global action_done
+    if state.get_outcome() == 'pending' and not action_done:
         actions = process_round(state)
         rounds.append(Round(state, actions))
+        print(actions)
         log_to_file(actions)
         log_to_file("")
+        action_done = True
         return actions
     else:
         process_game_end(rounds)
+        action_done = False
         return Actions.end_round()
 
 
