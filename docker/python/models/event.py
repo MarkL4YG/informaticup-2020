@@ -1,3 +1,5 @@
+from models.pathogen import Pathogen
+
 
 class Event:
 
@@ -23,3 +25,17 @@ class Event:
 
     def get_participants(self):
         return self._participants
+
+    @staticmethod
+    def from_json(event_json):
+        event = Event()
+        event._eventType = event_json['type']
+        event._sinceRound = int(event_json['sinceRound'])
+
+        if 'pathogen' in event_json:
+            event._pathogen = Pathogen.from_json(event_json['pathogen'])
+
+        if 'participants' in event_json:
+            event._participants = int(event_json['participants'])
+
+        return event

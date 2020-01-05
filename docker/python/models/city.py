@@ -1,3 +1,6 @@
+from models.format_utils import strength_to_int
+
+
 all_cities = [
     "Abuja",
     "Accra",
@@ -328,17 +331,9 @@ class City:
         city._longitude = city_json['longitude']
         city._population = city_json['population']
         city._connections = city_json['connections']
-        city._economyStrength = City.strength_to_int(city_json['economy'])
-        city._governmentStability = City.strength_to_int(city_json['government'])
-        city._hygieneStandards = City.strength_to_int(city_json['hygiene'])
-        city._populationAwareness = City.strength_to_int(city_json['awareness'])
+        city._economyStrength = strength_to_int(city_json['economy'])
+        city._governmentStability = strength_to_int(city_json['government'])
+        city._hygieneStandards = strength_to_int(city_json['hygiene'])
+        city._populationAwareness = strength_to_int(city_json['awareness'])
         return city
 
-    @staticmethod
-    def strength_to_int(stren) -> int:
-        if "+" in stren:
-            return len(stren)
-        elif "o" is stren:
-            return 0
-        else:
-            return -len(stren)
