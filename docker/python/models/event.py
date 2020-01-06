@@ -12,7 +12,9 @@ known_event_types = [
     "antiVaccinationism",
     "largeScalePanic",
     "economicCrisis",
-    "airportClosed"
+    "airportClosed",
+    "connectionClosed",
+    "bioTerrorism",
 
     # Global events
     "pathogenEncountered",
