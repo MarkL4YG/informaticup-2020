@@ -1,5 +1,28 @@
 from models.pathogen import Pathogen
 
+known_event_types = [
+    # City-Events
+    "outbreak",
+    "uprising",
+    "campaignLaunched",
+    "electionsCalled",
+    "influenceExerted",
+    "hygienicMeasuresApplied",
+    "medicationDeployed",
+    "antiVaccinationism",
+    "largeScalePanic",
+    "economicCrisis",
+    "airportClosed",
+    "connectionClosed",
+    "bioTerrorism",
+
+    # Global events
+    "pathogenEncountered",
+    "vaccineInDevelopment",
+    "vaccineAvailable",
+    "medicationAvailable"
+]
+
 
 class Event:
 
@@ -30,6 +53,11 @@ class Event:
     def from_json(event_json):
         event = Event()
         event._eventType = event_json['type']
+        if event.get_event_type() not in known_event_types:
+            params = []
+            for key in event_json:
+                params.append(key)
+            print(f'NEW EVENT_TYPE DISCOVERED! {event.get_event_type()} w/ params: {params}')
 
         if 'sinceRound' in event_json:
             event._sinceRound = int(event_json['sinceRound'])

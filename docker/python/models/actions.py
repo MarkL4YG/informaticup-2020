@@ -1,4 +1,4 @@
-from models.city import get_city_name
+from models.city import get_city_name, get_city_id
 from models.pathogen import get_pathogen_name
 
 
@@ -130,6 +130,11 @@ def generate_possible_actions(game_state):
             actions.append(apply_hygienic_measures(city_id))
             actions.append(launch_campaign(city_id))
 
+        if available_points > 6:
+            for other_city in city.get_connections():
+                for i in range(1, int((available_points - 3) / 3) + 1):
+                    actions.append(close_airway(city_id, get_city_id(other_city), i))
+
         if available_points > 20:
             for i in range(1, int((available_points - 15) / 5) + 1):
                 actions.append(close_airport(city_id, i))
@@ -148,10 +153,12 @@ def generate_possible_actions(game_state):
 
     for pathogen in game_state.get_pathogens():
 
-        if available_points >= 40 and pathogen not in game_state.get_pathogens_with_vaccination():
+        if available_points >= 40 and pathogen not in game_state.get_pathogens_with_vaccination() \
+                and pathogen not in game_state.get_pathogens_with_vaccination_in_development():
             actions.append(develop_vaccine(pathogen.get_id()))
 
-        if available_points >= 20 and pathogen not in game_state.get_pathogens_with_medication():
-                actions.append(develop_medication(pathogen.get_id()))
+        if available_points >= 20 and pathogen not in game_state.get_pathogens_with_medication()\
+                and pathogen not in game_state.get_pathogens_with_medication_in_development():
+            actions.append(develop_medication(pathogen.get_id()))
 
     return actions
