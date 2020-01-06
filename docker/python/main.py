@@ -7,8 +7,8 @@ from bottle import post, request, run, BaseRequest
 from models.actions import end_round
 from models.gamestate import state_from_json
 
-APPROACH = "random"
-LOG_FILE = f'../../output/{APPROACH}_log.txt'
+APPROACH = os.getenv('APPROACH', 'random')
+LOG_FILE = f'./output/{APPROACH}_log.txt'
 
 
 def log_to_file(text):
