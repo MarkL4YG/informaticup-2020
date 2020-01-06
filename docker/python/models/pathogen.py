@@ -25,8 +25,9 @@ allpathogens = [
 
 def get_pathogen_id(pathogen_name) -> int:
     sanitized_name = pathogen_name.strip('\u200e')
-    pathogen_index = allpathogens.index(sanitized_name)
-    if pathogen_index is -1:
+    try:
+        pathogen_index = allpathogens.index(sanitized_name)
+    except ValueError:
         pathogen_index = len(allpathogens)
         print(f'NEW PATHOGEN DISCOVERED! {sanitized_name} -> {pathogen_index}')
         allpathogens.append(sanitized_name)
