@@ -19,6 +19,7 @@ allpathogens = [
     "Neurodermantotitis",
     "Plorps",
     "Azmodeus",
+    "Bonulus eruptus"
 ]
 
 
@@ -46,6 +47,18 @@ class Pathogen:
         self._mobility = 0
         self._duration = 0
         self._lethality = 0
+
+    def __hash__(self):
+        return hash(self._index)
+
+    def __eq__(self, other):
+        if isinstance(other, Pathogen):
+            return self._index == other._index
+        else:
+            return False
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
 
     def get_name(self):
         return self._name

@@ -40,4 +40,7 @@ class Event:
         if 'participants' in event_json:
             event._participants = int(event_json['participants'])
 
+        if 'prevalence' in event_json:
+            event._prevalence = event_json['prevalence']
+
         return event

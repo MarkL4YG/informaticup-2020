@@ -18,8 +18,9 @@ def log_to_file(text):
 
 
 def clear_log_file():
-    with open(LOG_FILE, "w", encoding="utf-8") as f:
-        f.write("")
+    if os.getenv('LOG_ACTIONS', 'FALSE') == "TRUE":
+        with open(LOG_FILE, "w", encoding="utf-8") as f:
+            f.write("")
 
 
 def process_round(state):
@@ -39,6 +40,8 @@ def index():
     game_json = request.json
     state = state_from_json(game_json)
     print(f'round: {state.get_round()}, points: {state.get_available_points()}, outcome: {state.get_outcome()}')
+    if "error" in game_json:
+        print(game_json["error"])
     if state.get_outcome() == 'pending':
         action = process_round(state)
         print(action.get_json())

@@ -290,6 +290,7 @@ class City:
         self._hygieneStandards = 0
         self._populationAwareness = 0
         self._events = []
+        self._pathogens = []
 
     def get_name(self):
         return self._name
@@ -324,6 +325,9 @@ class City:
     def get_events(self):
         return self._events
 
+    def get_pathogens(self):
+        return self._pathogens
+
     @staticmethod
     def from_json(city_json):
         # remove U+200E LEFT-TO-RIGHT MARK character
@@ -342,6 +346,9 @@ class City:
             for eventJson in city_json['events']:
                 event = Event.from_json(eventJson)
                 city._events.append(event)
+
+                if event.get_event_type() == 'outbreak':
+                    city._pathogens.append(event.get_pathogen())
 
         return city
 

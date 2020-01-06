@@ -14,6 +14,7 @@ class GameState:
         self._pathogens = []
         self._pathogens_with_medication = []
         self._pathogens_with_vaccination = []
+        self._pathogens_with_vaccination_in_development = []
         self._error = None
 
     def get_round(self):
@@ -37,6 +38,9 @@ class GameState:
     def get_pathogens_with_vaccination(self):
         return self._pathogens_with_vaccination
 
+    def get_pathogens_with_vaccination_in_development(self):
+        return self._pathogens_with_vaccination_in_development
+
     def get_pathogens_with_medication(self):
         return self._pathogens_with_medication
 
@@ -59,11 +63,11 @@ def state_from_json(json) -> GameState:
 
         if event.get_event_type() == 'pathogenEncountered':
             state.get_pathogens().append(event.get_pathogen())
-
-        if event.get_event_type() == 'vaccineAvailable':
+        elif event.get_event_type() == 'vaccineInDevelopment':
+            state.get_pathogens_with_vaccination_in_development().append(event.get_pathogen())
+        elif event.get_event_type() == 'vaccineAvailable':
             state.get_pathogens_with_vaccination().append(event.get_pathogen())
-
-        if event.get_event_type() == 'medicationAvailable':
+        elif event.get_event_type() == 'medicationAvailable':
             state.get_pathogens_with_medication().append(event.get_pathogen())
 
     return state
