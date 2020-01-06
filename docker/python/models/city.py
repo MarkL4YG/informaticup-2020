@@ -208,30 +208,30 @@ all_cities = [
     "Хатанга",
     "Якутск",
     "Երևան",
-    "ירושלים",
-    "أبو ظبي",
-    "أسمرة",
-    "اسلام آباد",
-    "الخرطوم",
-    "الدوحة",
-    "الرياض",
-    "الرِّبَاط",
-    "العيون",
-    "المنامة",
-    "اِنْجَمِينَا",
-    "بغداد",
-    "بيروت",
-    "تهران",
-    "تونس",
-    "دمشق",
-    "صنعاء",
-    "طرابلس",
-    "عمان",
-    "كوالا لومڤور",
-    "مدينة الجزائر",
-    "مسقط",
-    "نواكشوط",
-    "کابل",
+    "ירושלים\u200e",
+    "أبو ظبي\u200e",
+    "أسمرة\u200e",
+    "اسلام آباد\u200e",
+    "الخرطوم\u200e",
+    "الدوحة\u200e",
+    "الرياض\u200e",
+    "الرِّبَاط\u200e",
+    "العيون\u200e",
+    "المنامة\u200e",
+    "اِنْجَمِينَا\u200e",
+    "بغداد\u200e",
+    "بيروت\u200e",
+    "تهران\u200e",
+    "تونس\u200e",
+    "دمشق\u200e",
+    "صنعاء\u200e",
+    "طرابلس\u200e",
+    "عمان\u200e",
+    "كوالا لومڤور\u200e",
+    "مدينة الجزائر\u200e",
+    "مسقط\u200e",
+    "نواكشوط\u200e",
+    "کابل\u200e",
     "काठमाडौँ",
     "नई दिल्ली",
     "मुंबई",
@@ -267,8 +267,7 @@ all_cities = [
 
 
 def get_city_id(city_name) -> int:
-    sanitized_name = city_name.strip('\u200e')
-    return all_cities.index(sanitized_name)
+    return all_cities.index(city_name)
 
 
 def get_city_name(city_id) -> str:
@@ -331,8 +330,7 @@ class City:
     @staticmethod
     def from_json(city_json):
         # remove U+200E LEFT-TO-RIGHT MARK character
-        name = city_json['name'].strip('\u200e')
-        city = City(name)
+        city = City(city_json['name'])
         city._latitude = city_json['latitude']
         city._longitude = city_json['longitude']
         city._population = city_json['population']

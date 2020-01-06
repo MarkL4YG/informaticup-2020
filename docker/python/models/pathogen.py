@@ -24,13 +24,12 @@ allpathogens = [
 
 
 def get_pathogen_id(pathogen_name) -> int:
-    sanitized_name = pathogen_name.strip('\u200e')
     try:
-        pathogen_index = allpathogens.index(sanitized_name)
+        pathogen_index = allpathogens.index(pathogen_name)
     except ValueError:
         pathogen_index = len(allpathogens)
-        print(f'NEW PATHOGEN DISCOVERED! {sanitized_name} -> {pathogen_index}')
-        allpathogens.append(sanitized_name)
+        print(f'NEW PATHOGEN DISCOVERED! {pathogen_name} -> {pathogen_index}')
+        allpathogens.append(pathogen_name)
     return pathogen_index
 
 
@@ -82,8 +81,7 @@ class Pathogen:
     @staticmethod
     def from_json(pathogen_json):
         # remove U+200E LEFT-TO-RIGHT MARK character
-        sanitized_name = pathogen_json['name'].strip('\u200e')
-        pathogen = Pathogen(sanitized_name)
+        pathogen = Pathogen(pathogen_json['name'])
         pathogen._infectivity = strength_to_int(pathogen_json['infectivity'])
         pathogen._mobility = strength_to_int(pathogen_json['mobility'])
         pathogen._duration = strength_to_int(pathogen_json['duration'])
