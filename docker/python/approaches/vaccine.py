@@ -4,8 +4,11 @@ from models.actions import end_round, develop_vaccine, deploy_vaccine
 from models.gamestate import GameState
 
 
-def pathogen_dangerousness(pathogen):
-    return pathogen.get_duration() + pathogen.get_infectivity() + pathogen.get_lethality() + pathogen.get_mobility()
+def outbreak_priority(outbreak_tuple):
+    city = outbreak_tuple[0]
+    outbreak_event = outbreak_tuple[1]
+
+    return (1.0 - outbreak_event.get_prevalence()) * city.get_population()
 
 
 def process_round(state: GameState):
@@ -15,7 +18,6 @@ def process_round(state: GameState):
     if pathogens_without_vaccine:
         # develop all vaccines first
         if state.get_available_points() >= 40:
-            pathogens_without_vaccine.sort(reverse=True, key=pathogen_dangerousness)
             return develop_vaccine(pathogens_without_vaccine[0].get_id())
         else:
             return end_round()
@@ -38,12 +40,13 @@ def process_round(state: GameState):
                         filter(lambda outbreak_event: outbreak_event.get_pathogen() not in vaccinated_pathogens,
                                outbreaks))
                     outbreaks_to_vaccinate.extend(
-                        list(map(lambda outbreak_event: (city.get_city_id(), outbreak_event), outbreaks)))
+                        list(map(lambda outbreak_event: (city, outbreak_event), outbreaks)))
 
                 if outbreaks_to_vaccinate:
-                    outbreaks_to_vaccinate.sort(key=lambda outbreak_tupel: outbreak_tupel[1].get_prevalence())
+                    outbreaks_to_vaccinate.sort(key=outbreak_priority, reverse=True)
                     outbreak_to_vaccinate = outbreaks_to_vaccinate[0]
-                    return deploy_vaccine(outbreak_to_vaccinate[1].get_pathogen().get_id(), outbreak_to_vaccinate[0])
+                    return deploy_vaccine(outbreak_to_vaccinate[1].get_pathogen().get_id(),
+                                          outbreak_to_vaccinate[0].get_city_id())
                 else:
                     return end_round()
             else:
