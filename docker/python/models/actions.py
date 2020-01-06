@@ -153,10 +153,12 @@ def generate_possible_actions(game_state):
 
     for pathogen in game_state.get_pathogens():
 
-        if available_points >= 40 and pathogen not in game_state.get_pathogens_with_vaccination():
+        if available_points >= 40 and pathogen not in game_state.get_pathogens_with_vaccination() \
+                and pathogen not in game_state.get_pathogens_with_vaccination_in_development():
             actions.append(develop_vaccine(pathogen.get_id()))
 
-        if available_points >= 20 and pathogen not in game_state.get_pathogens_with_medication():
+        if available_points >= 20 and pathogen not in game_state.get_pathogens_with_medication()\
+                and pathogen not in game_state.get_pathogens_with_medication_in_development():
             actions.append(develop_medication(pathogen.get_id()))
 
     return actions
