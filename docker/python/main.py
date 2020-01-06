@@ -4,8 +4,8 @@ import os
 
 from bottle import post, request, run, BaseRequest
 
-from docker.python.models.actions import end_round
-from docker.python.models.gamestate import state_from_json
+from models.actions import end_round
+from models.gamestate import state_from_json
 
 APPROACH = "random"
 LOG_FILE = f'../../output/{APPROACH}_log.txt'
@@ -30,7 +30,7 @@ def process_round(state):
 
 def process_game_end(state):
     # process end of game
-    with open(f'../../output/{APPROACH}_results.csv', 'a', newline='') as resultFile:
+    with open(f'./output/{APPROACH}_results.csv', 'a', newline='') as resultFile:
         writer = csv.writer(resultFile, delimiter=',')
         writer.writerow([state.get_outcome(), state.get_round()])
 

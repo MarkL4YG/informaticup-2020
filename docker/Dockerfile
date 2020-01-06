@@ -8,4 +8,6 @@ RUN pip install --no-cache-dir -r ./requirements.txt
 
 COPY python ./
 
+VOLUME /usr/src/app/output
+
 CMD ["python", "./main.py"]
