@@ -4,6 +4,15 @@ known_event_types = [
     # City-Events
     "outbreak",
     "uprising",
+    "campaignLaunched",
+    "electionsCalled",
+    "influenceExerted",
+    "hygienicMeasuresApplied",
+    "medicationDeployed",
+    "antiVaccinationism",
+    "largeScalePanic",
+    "economicCrisis",
+    "airportClosed"
 
     # Global events
     "pathogenEncountered",
@@ -43,7 +52,10 @@ class Event:
         event = Event()
         event._eventType = event_json['type']
         if event.get_event_type() not in known_event_types:
-            print(f'NEW EVENT_TYPE DISCOVERED! {event.get_event_type()}')
+            params = []
+            for key in event_json:
+                params.append(key)
+            print(f'NEW EVENT_TYPE DISCOVERED! {event.get_event_type()} w/ params: {params}')
 
         if 'sinceRound' in event_json:
             event._sinceRound = int(event_json['sinceRound'])
