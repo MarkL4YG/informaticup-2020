@@ -1,5 +1,3 @@
-import random
-
 from models.actions import end_round, develop_vaccine, deploy_vaccine
 from models.gamestate import GameState
 

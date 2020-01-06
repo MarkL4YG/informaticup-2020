@@ -74,6 +74,6 @@ def state_from_json(json) -> GameState:
         elif event.get_event_type() == 'medicationAvailable':
             state.get_pathogens_with_medication().append(event.get_pathogen())
         elif event.get_event_type() == 'medicationInDevelopment':
-            state.get_pathogens_with_medication().append(event.get_pathogen())
+            state.get_pathogens_with_medication_in_development().append(event.get_pathogen())
 
     return state
