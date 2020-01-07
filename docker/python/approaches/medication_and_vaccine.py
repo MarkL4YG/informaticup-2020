@@ -28,7 +28,7 @@ def generate_possible_action(outbreak, city, vaccine, deployable) -> PossibleAct
         percentage = (1 - outbreak.get_prevalence())
         cost_factor = 5
     else:
-        percentage = outbreak.get_prevalence()
+        percentage = outbreak.get_prevalence() * 0.45
         cost_factor = 10
     if pathogen in deployable:
         deployable_factor = 1.3
