@@ -54,6 +54,7 @@ class Event:
         event = Event()
         event._eventType = event_json['type']
         if event.get_event_type() not in known_event_types:
+            known_event_types.append(event.get_event_type())
             params = []
             for key in event_json:
                 params.append(key)
