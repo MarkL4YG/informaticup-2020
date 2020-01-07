@@ -22,15 +22,20 @@ class PossibleAction:
         return self._vaccine
 
 
-def generate_possible_action(outbreak, city, vaccine) -> PossibleAction:
+def generate_possible_action(outbreak, city, vaccine, deployable) -> PossibleAction:
+    pathogen = outbreak.get_pathogen()
     if vaccine:
         percentage = (1 - outbreak.get_prevalence())
         cost_factor = 5
     else:
-        percentage = outbreak.get_prevalence() * 0.4
+        percentage = outbreak.get_prevalence()
         cost_factor = 10
-    priority = percentage * city.get_population() / cost_factor
-    return PossibleAction(priority, outbreak.get_pathogen(), city.get_city_id(), vaccine)
+    if pathogen in deployable:
+        deployable_factor = 1.3
+    else:
+        deployable_factor = 1
+    priority = percentage * city.get_population() / cost_factor * deployable_factor
+    return PossibleAction(priority, pathogen, city.get_city_id(), vaccine)
 
 
 def is_action_executable(action, state):
@@ -75,16 +80,21 @@ def process_round(state: GameState):
     for city in state.get_cities():
         if points >= 5:
             not_vaccinated_outbreaks = get_not_vaccinated_outbreaks_for_city(city)
-            actions = list(map(lambda outbreak: generate_possible_action(outbreak, city, True), not_vaccinated_outbreaks))
+            actions = list(map(
+                lambda outbreak: generate_possible_action(outbreak, city, True, state.get_pathogens_with_vaccination()),
+                not_vaccinated_outbreaks))
             possible_actions.extend(actions)
 
         if points >= 10:
             not_medicated_outbreaks = get_not_medicated_outbreaks_for_city(city)
-            actions = list(map(lambda outbreak: generate_possible_action(outbreak, city, False), not_medicated_outbreaks))
+            actions = list(map(
+                lambda outbreak: generate_possible_action(outbreak, city, False, state.get_pathogens_with_medication()),
+                not_medicated_outbreaks))
             possible_actions.extend(actions)
 
     if possible_actions:
         possible_actions.sort(key=lambda action: action.get_priority(), reverse=True)
+
         action = possible_actions[0]
         pathogen = action.get_pathogen()
         if action.is_vaccine():
