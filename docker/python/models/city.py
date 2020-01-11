@@ -1,6 +1,6 @@
 from models.event import Event
 from models.format_utils import strength_to_int
-
+from models.pathogen import Pathogen
 
 all_cities = [
     "Abuja",
@@ -283,6 +283,7 @@ class City:
         self._latitude = 0.0
         self._longitude = 0.0
         self._population = 0
+        self._infected_population = 0
         self._connections = []
         self._economyStrength = 0
         self._governmentStability = 0
@@ -305,6 +306,9 @@ class City:
 
     def get_population(self):
         return self._population
+
+    def get_infected_population(self):
+        return self._infected_population
 
     def get_connections(self):
         return self._connections
@@ -346,7 +350,9 @@ class City:
                 city._events.append(event)
 
                 if event.get_event_type() == 'outbreak':
-                    city._pathogens.append(event.get_pathogen())
+                    event_pathogen: Pathogen = event.get_pathogen()
+                    event_pathogen.set_prevalence(event.get_prevalence())
+                    city._pathogens.append(event_pathogen)
+                    city._infected_population += city._population * event_pathogen.get_prevalence()
 
         return city
-

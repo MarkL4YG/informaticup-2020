@@ -1,3 +1,4 @@
+from functools import reduce
 from models.city import City
 from models.event import Event
 
@@ -50,6 +51,17 @@ class GameState:
 
     def get_error(self):
         return self._error
+
+    def get_total_population(self):
+        return reduce(lambda count, city_population: count + city_population,
+                      map(lambda city: city.get_population(), self.get_cities()))
+
+    def get_total_infected_population(self):
+        return reduce(lambda count, city_infected: count + city_infected,
+               map(lambda city: city.get_infected_population(), self.get_cities()))
+
+    def get_total_healthy_population(self):
+        return self.get_total_population() - self.get_total_infected_population()
 
 
 def state_from_json(json) -> GameState:

@@ -47,6 +47,7 @@ class Pathogen:
         self._mobility = 0
         self._duration = 0
         self._lethality = 0
+        self._prevalence = 0
 
     def __hash__(self):
         return hash(self._index)
@@ -77,6 +78,12 @@ class Pathogen:
 
     def get_lethality(self):
         return self._lethality
+
+    def get_prevalence(self):
+        return self._prevalence
+
+    def set_prevalence(self, prevalence):
+        self._prevalence = prevalence
 
     @staticmethod
     def from_json(pathogen_json):
