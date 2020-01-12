@@ -291,6 +291,7 @@ class City:
         self._populationAwareness = 0
         self._events = []
         self._pathogens = []
+        self._under_quarantine = False
 
     def get_name(self):
         return self._name
@@ -331,6 +332,10 @@ class City:
     def get_pathogens(self):
         return self._pathogens
 
+    @property
+    def under_quarantine(self):
+        return self._under_quarantine
+
     @staticmethod
     def from_json(city_json):
         # remove U+200E LEFT-TO-RIGHT MARK character
@@ -354,5 +359,6 @@ class City:
                     event_pathogen.set_prevalence(event.get_prevalence())
                     city._pathogens.append(event_pathogen)
                     city._infected_population += city._population * event_pathogen.get_prevalence()
-
+                if event.get_event_type() == 'quarantine':
+                    city._under_quarantine = True
         return city

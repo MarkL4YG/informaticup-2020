@@ -8,14 +8,19 @@ from ray.tune.logger import pretty_print
 from approaches.reinforced.environment import SimplifiedIC20Environment, CHECKPOINT_FILE
 
 if __name__ == "__main__":
-    ray.init()  # address = None when running locally. address = 'auto' when running on aws.
+    ray.init(address='auto')  # address = None when running locally. address = 'auto' when running on aws.
     register_env("srv", lambda _: SimplifiedIC20Environment())
 
     trainer = PPOTrainer(
         env="srv",
         config={
-            "num_workers": 0,
-            "timesteps_per_iteration": 20,
+            "num_gpus": 1,
+            "gamma": 0.99,
+            "lr": 0.0001,
+            "sgd_minibatch_size": 1000,
+            "batch_mode": "complete_episodes",
+            "num_workers": 5,
+            "timesteps_per_iteration": 200,
         })
 
     # Attempt to restore from checkpoint if possible.

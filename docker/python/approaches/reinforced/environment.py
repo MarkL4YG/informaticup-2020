@@ -119,6 +119,7 @@ class SimplifiedIC20Environment(ExternalEnv):
 
     def _choose_affordable_action(self, episode, preprocessed_observation, observation) -> Tuple[Action, float]:
         action = self.wait_for_action(preprocessed_observation, episode)
+        print(f'discrete-action: {action}')
         mapped_action, penalty = self._map_actions(action, observation)
         while mapped_action.get_cost() > observation.get_available_points():
             action = self.wait_for_action(preprocessed_observation, episode)
@@ -139,7 +140,6 @@ class SimplifiedIC20Environment(ExternalEnv):
         episode._send()
         return episode.action_queue.get(True)
 
-    @timer
     def _map_actions(self, chosen_action, state: GameState) -> Tuple[Action, float]:
         if chosen_action < GLOBAL_ACTIONSPACE:
             return self._map_global_actions(chosen_action, state)
@@ -156,12 +156,22 @@ class SimplifiedIC20Environment(ExternalEnv):
         else:
             available_pathogens = self.preprocessor.sort_pathogens(game_state.get_pathogens(),
                                                                    game_state.get_cities())[:MAX_PATHOGENS]
+            pathogens_with_vaccine = [*game_state.get_pathogens_with_vaccination(),
+                                      *game_state.get_pathogens_with_vaccination_in_development()]
+            pathogens_with_meds = [*game_state.get_pathogens_with_medication(),
+                                   *game_state.get_pathogens_with_medication_in_development()]
+
+            available_pathogens_without_vaccine = list(filter(lambda pathogen: pathogen not in pathogens_with_vaccine,
+                                                              available_pathogens))
+            available_pathogens_without_medication = list(filter(lambda pathogen: pathogen not in pathogens_with_meds,
+                                                                 available_pathogens))
+
             vaccine_actions = {i: action for i, action in enumerate(
-                self.generate_global_vaccine_actions(available_pathogens, game_state.get_pathogens_with_vaccination()),
+                self.generate_global_vaccine_actions(available_pathogens, available_pathogens_without_vaccine),
                 start=basic_options_len)}
 
             medication_actions = {i: action for i, action in enumerate(
-                self.generate_global_med_actions(available_pathogens, game_state.get_pathogens_with_medication()),
+                self.generate_global_med_actions(available_pathogens, available_pathogens_without_medication),
                 start=basic_options_len + MAX_PATHOGENS)}
 
             options.update(vaccine_actions)
@@ -218,46 +228,41 @@ class SimplifiedIC20Environment(ExternalEnv):
     def generate_city_vaccine_actions(self, city, ordered_available_pathogens: List[Pathogen],
                                       pathogens_with_vaccination: List[Pathogen]):
         city_pathogens_with_vaccine = filter(lambda city_pathogen:
-                                             city_pathogen.get_id() in [state_pathogen.get_id() for state_pathogen in
-                                                                        pathogens_with_vaccination],
+                                             city_pathogen in pathogens_with_vaccination,
                                              city.get_pathogens())
-        ordered_city_pathogens_with_vaccine = [actions.deploy_vaccine(pathogen.get_id(),
-                                                                      city.get_city_id()) if pathogen in city_pathogens_with_vaccine else INVALID_ACTION
+        ordered_city_pathogens_with_vaccine = [actions.deploy_vaccine(pathogen.get_id(), city.get_city_id())
+                                               if pathogen in city_pathogens_with_vaccine
+                                               else INVALID_ACTION
                                                for pathogen in ordered_available_pathogens]
         return ordered_city_pathogens_with_vaccine
 
     def generate_city_med_actions(self, city, ordered_available_pathogens: List[Pathogen],
                                   pathogens_with_medication: List[Pathogen]):
         city_pathogens_with_medication = filter(lambda city_pathogen:
-                                                city_pathogen.get_id() in [state_pathogen.get_id() for state_pathogen in
-                                                                           pathogens_with_medication],
+                                                city_pathogen in pathogens_with_medication,
                                                 city.get_pathogens())
-        ordered_city_pathogens_with_medication = [actions.deploy_vaccine(pathogen.get_id(),
-                                                                         city.get_city_id()) if pathogen in city_pathogens_with_medication else INVALID_ACTION
+        ordered_city_pathogens_with_medication = [actions.deploy_vaccine(pathogen.get_id(), city.get_city_id())
+                                                  if pathogen in city_pathogens_with_medication
+                                                  else INVALID_ACTION
                                                   for pathogen in ordered_available_pathogens]
         return ordered_city_pathogens_with_medication
 
     def generate_global_vaccine_actions(self, gamestate_pathogens: List[Pathogen],
-                                        pathogens_with_vaccination: List[Pathogen]):
+                                        pathogens_without_vaccination: List[Pathogen]):
 
-        ordered_gamestate_pathogens_with_vaccine = filter(lambda gamestate_pathogen:
+        ordered_gamestate_pathogens_with_vaccine = map(lambda gamestate_pathogen:
                                                           actions.develop_vaccine(gamestate_pathogen.get_id())
-                                                          if gamestate_pathogen.get_id() in [state_pathogen.get_id() for
-                                                                                             state_pathogen in
-                                                                                             pathogens_with_vaccination]
+                                                          if gamestate_pathogen in pathogens_without_vaccination
                                                           else INVALID_ACTION,
                                                           gamestate_pathogens)
         return ordered_gamestate_pathogens_with_vaccine
 
     def generate_global_med_actions(self, gamestate_pathogens: List[Pathogen],
-                                    pathogens_with_medication: List[Pathogen]):
+                                    pathogens_without_medication: List[Pathogen]):
 
         ordered_gamestate_pathogens_with_medication = map(lambda gamestate_pathogen:
-                                                          actions.develop_medication(
-                                                              gamestate_pathogen.get_id())
-                                                          if gamestate_pathogen.get_id() in [state_pathogen.get_id() for
-                                                                                             state_pathogen in
-                                                                                             pathogens_with_medication]
+                                                          actions.develop_medication(gamestate_pathogen.get_id())
+                                                          if gamestate_pathogen in pathogens_without_medication
                                                           else INVALID_ACTION,
                                                           gamestate_pathogens)
         return ordered_gamestate_pathogens_with_medication

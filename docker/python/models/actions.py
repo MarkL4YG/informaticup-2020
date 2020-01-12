@@ -2,7 +2,7 @@ import collections
 
 import ray
 
-from models.city import get_city_name, get_city_id
+from models.city import get_city_name, get_city_id, City
 from models.pathogen import get_pathogen_name
 
 
@@ -254,11 +254,11 @@ def actions_gte20(available_points: int, city_id: int):
 
 
 @ray.remote
-def actions_gte30(available_points: int, city_id: int):
+def actions_gte30(available_points: int, city: City):
     actions = []
-    if available_points > 30:
+    if available_points > 30 and not city.under_quarantine:
         for i in range(1, int((available_points - 20) / 10) + 1):
-            actions.append(quarantine_city(city_id, i))
+            actions.append(quarantine_city(city.get_city_id(), i))
     return actions
 
 
@@ -270,7 +270,7 @@ def get_all_city_actions(available_points, game_state):
         actions_gte3_ref = actions_gte3.remote(available_points, city_id)
         actions_gte6_ref = actions_gte6.remote(available_points, city_id, city)
         actions_gte20_ref = actions_gte20.remote(available_points, city_id)
-        actions_gte30_ref = actions_gte30.remote(available_points, city_id)
+        actions_gte30_ref = actions_gte30.remote(available_points, city)
 
         city_pathogen_action_refs = []
         for pathogen in game_state.get_pathogens():

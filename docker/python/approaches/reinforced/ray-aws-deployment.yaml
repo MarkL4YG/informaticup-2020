@@ -70,7 +70,7 @@ auth:
 # For more documentation on available fields, see:
 # http://boto3.readthedocs.io/en/latest/reference/services/ec2.html#EC2.ServiceResource.create_instances
 head_node:
-  InstanceType: m5.xlarge
+  InstanceType: p2.xlarge
   ImageId: ami-0bb99846db2df6e38 # Deep Learning AMI (Ubuntu) Version 26.0
 
   # You can provision additional disk space with a conf as follows
@@ -86,7 +86,7 @@ head_node:
 # For more documentation on available fields, see:
 # http://boto3.readthedocs.io/en/latest/reference/services/ec2.html#EC2.ServiceResource.create_instances
 worker_nodes:
-  InstanceType: m5.large
+  InstanceType: m5.xlarge
   ImageId: ami-0bb99846db2df6e38 # Deep Learning AMI (Ubuntu) Version 26.0
 
   # Run workers on spot by default. Comment this out to use on-demand.
@@ -117,6 +117,8 @@ setup_commands:
   - echo 'export PATH="$HOME/anaconda3/envs/tensorflow_p36/bin:$PATH"' >> ~/.bashrc
   - echo 'export PATH="/tmp/ic20rl/docker/python:$PATH"' >> ~/.bashrc
   - pip install -U ray[rllib]
+  - pip install -U setproctitle
+  - pip install -U gputil
   # Consider uncommenting these if you also want to run apt-get commands during setup
   # - sudo pkill -9 apt-get || true
   # - sudo pkill -9 dpkg || true

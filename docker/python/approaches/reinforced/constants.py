@@ -1,8 +1,8 @@
 from models import actions
 
-MAX_CITIES = 5
 END_ROUND_ACTION = 0
 MAX_CONNECTIONS = 10
+MAX_CITIES = 15
 
 # global action-space:
 # [end_round[0],
@@ -20,5 +20,5 @@ MAX_CITY_ACTIONSPACE = MAX_ACTIONSPACE - 1
 MAX_PATHOGENS = 5
 END_EPISODE_RESPONSE = "END_EPISODE"
 NEUTRAL_REWARD = 0
-PATH_TO_IC20 = "./ic20_linux"
+PATH_TO_IC20 = "ic20_linux"
 INVALID_ACTION = actions.end_round()  # todo: check if this could be also a string, if so make this a string

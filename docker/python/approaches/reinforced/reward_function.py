@@ -18,7 +18,7 @@ class SimpleReward(RewardFunction):
         population_ratio = population / controller.previous_population
         population_score = np.log(population_ratio * state.get_round())
 
-        return population_score + controller.previous_penalty - state.get_available_points()
+        return np.clip(population_score + controller.previous_penalty - state.get_available_points(), -1, 1)
 
 
 def sigmoid(self, x: float, smoothing_factor: float = 1):
