@@ -13,7 +13,7 @@ from ray.rllib.utils.annotations import PublicAPI
 
 from approaches.reinforced.constants import END_EPISODE_RESPONSE, MAX_CITIES, PATH_TO_IC20
 from approaches.reinforced.controller_state import ControllerState
-from approaches.reinforced.observation_preprocessors import naive_city_state_preprocessing
+from approaches.reinforced.observation_preprocessors import NaivePreprocessor, ObservationPreprocessor
 from approaches.reinforced.reward_function import SimpleReward
 from models.gamestate import state_from_json, GameState
 
@@ -24,19 +24,21 @@ FIRST_ROUND = 1
 class MyServer(ThreadingMixIn, HTTPServer):
 
     @PublicAPI
-    def __init__(self, external_env: ExternalEnv, address, port):
+    def __init__(self, external_env: ExternalEnv, address, port, preprocessor: ObservationPreprocessor):
         socket_address = f'http://{address}:{port}'
         subprocess.Popen([PATH_TO_IC20, '-t', '0', '-u', socket_address, '-o', '/dev/null'])
-        handler = _make_handler(external_env, ControllerState(), socket_address)
+        handler = _make_handler(external_env, ControllerState(), socket_address, preprocessor)
         HTTPServer.__init__(self, (address, port), handler)
 
 
-def _make_handler(external_env: ExternalEnv, controller_state: ControllerState, socket_address: str):
+def _make_handler(external_env: ExternalEnv, controller_state: ControllerState, socket_address: str,
+                  preprocessor: ObservationPreprocessor):
     class StatefulHandler(SimpleHTTPRequestHandler):
         """
         Stateful-Handlers are ugly. But I am not going to wrap ic20 inside a policy_client just to make this stateless.
         """
         controller = controller_state
+        observation_preprocessor = preprocessor
 
         # noinspection PyPep8Naming
         def do_POST(self):
@@ -102,14 +104,14 @@ def _make_handler(external_env: ExternalEnv, controller_state: ControllerState, 
 
             elif state.get_outcome() == 'loss':
                 external_env.end_episode(self.controller.eid,
-                                         naive_city_state_preprocessing(state)[:MAX_CITIES])
+                                         self.observation_preprocessor.preprocess(state)[:MAX_CITIES])
                 self.controller.new_eid()
                 self.controller.is_first_round = True
                 return END_EPISODE_RESPONSE
 
             elif state.get_outcome() == 'win':
                 external_env.end_episode(self.controller.eid,
-                                         naive_city_state_preprocessing(state)[:MAX_CITIES])
+                                         self.observation_preprocessor.preprocess(state)[:MAX_CITIES])
                 self.controller.new_eid()
                 self.controller.is_first_round = True
                 return END_EPISODE_RESPONSE

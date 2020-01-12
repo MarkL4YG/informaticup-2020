@@ -15,7 +15,7 @@ if __name__ == "__main__":
         env="srv",
         config={
             "num_workers": 0,
-            "timesteps_per_iteration": 200,
+            "timesteps_per_iteration": 20,
         })
 
     # Attempt to restore from checkpoint if possible.
