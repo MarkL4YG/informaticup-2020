@@ -18,6 +18,11 @@ class Action:
     def get_cost(self):
         return self._cost
 
+    def __eq__(self, other):
+        if isinstance(other, Action):
+            return self._json == other._json
+        else:
+            return False
 
 def end_round() -> Action:
     return Action({"type": "endRound"}, 0)

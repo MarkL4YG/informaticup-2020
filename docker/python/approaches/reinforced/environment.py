@@ -111,15 +111,19 @@ class SimplifiedIC20Environment(ExternalEnv):
                 """
 
         episode = self._get(episode_id)
-        preprocessed_city_states = self.preprocessor.preprocess(observation)[:MAX_CITIES]
-        city_action = self.wait_for_action(preprocessed_city_states, episode)
-        mapped_action, penalty = self._map_actions(city_action, observation)
-        while mapped_action.get_cost() > observation.get_available_points():
-            city_action = self.wait_for_action(preprocessed_city_states, episode)
-            mapped_action, penalty = self._map_actions(city_action, observation)
-        action_json = mapped_action.get_json()
+        preprocessed_observation = self.preprocessor.preprocess(observation)[:MAX_CITIES]
+        action, penalty = self._choose_affordable_action(episode, preprocessed_observation, observation)
+        action_json = action.get_json()
         print(f"Action: {action_json}")
-        return action_json, preprocessed_city_states, penalty
+        return action_json, preprocessed_observation, penalty
+
+    def _choose_affordable_action(self, episode, preprocessed_observation, observation) -> Tuple[Action, float]:
+        action = self.wait_for_action(preprocessed_observation, episode)
+        mapped_action, penalty = self._map_actions(action, observation)
+        while mapped_action.get_cost() > observation.get_available_points():
+            action = self.wait_for_action(preprocessed_observation, episode)
+            mapped_action, penalty = self._map_actions(action, observation)
+        return mapped_action, penalty
 
     def wait_for_action(self, observation, episode):
         """
@@ -147,33 +151,28 @@ class SimplifiedIC20Environment(ExternalEnv):
             0: actions.end_round(),
         }
         basic_options_len = len(options)
-        available_pathogens = self.preprocessor.sort_pathogens(game_state.get_pathogens(),
-                                                               game_state.get_cities())[:MAX_PATHOGENS]
-        vaccine_actions = {i: action for i, action in enumerate(
-            self.generate_global_vaccine_actions(available_pathogens, game_state.get_pathogens_with_vaccination()),
-            start=basic_options_len)}
-
-        medication_actions = {i: action for i, action in enumerate(
-            self.generate_global_med_actions(available_pathogens, game_state.get_pathogens_with_medication()),
-            start=basic_options_len + MAX_PATHOGENS)}
-
-        options.update(vaccine_actions)
-        options.update(medication_actions)
-        action = options.get(chosen_action)
-
-        if action in actions.generate_possible_actions_parallelized(game_state):
-            if action == INVALID_ACTION:
-                penalty = -20
-                return actions.end_round(), penalty
-            else:
-                return action, NEUTRAL_REWARD
+        if chosen_action < basic_options_len:
+            mapped_action = options.get(chosen_action)
         else:
-            penalty = -20
-            return actions.end_round(), penalty
+            available_pathogens = self.preprocessor.sort_pathogens(game_state.get_pathogens(),
+                                                                   game_state.get_cities())[:MAX_PATHOGENS]
+            vaccine_actions = {i: action for i, action in enumerate(
+                self.generate_global_vaccine_actions(available_pathogens, game_state.get_pathogens_with_vaccination()),
+                start=basic_options_len)}
+
+            medication_actions = {i: action for i, action in enumerate(
+                self.generate_global_med_actions(available_pathogens, game_state.get_pathogens_with_medication()),
+                start=basic_options_len + MAX_PATHOGENS)}
+
+            options.update(vaccine_actions)
+            options.update(medication_actions)
+            mapped_action = options.get(chosen_action)
+
+        return self.penalize_action(mapped_action, game_state)
 
     def _map_city_actions(self, chosen_action, game_state: GameState) -> Tuple[Action, float]:
-        city_id = chosen_action % CITY_ACTIONSPACE
-        action = int(np.ceil(chosen_action / CITY_ACTIONSPACE))
+        city_id = int(np.floor(chosen_action / CITY_ACTIONSPACE))
+        action = chosen_action % CITY_ACTIONSPACE
         city = game_state.get_cities()[city_id]
 
         options = {0: actions.quarantine_city(city_id, number_of_rounds=2),
@@ -183,21 +182,29 @@ class SimplifiedIC20Environment(ExternalEnv):
                    4: actions.call_for_elections(city_id),
                    6: actions.launch_campaign(city_id)}
         basic_options_len = len(options)
-        available_pathogens = self.preprocessor.sort_pathogens(game_state.get_pathogens(),
-                                                               game_state.get_cities())[:MAX_PATHOGENS]
 
-        vaccine_actions = {i: action for i, action in enumerate(
-            self.generate_city_vaccine_actions(city, available_pathogens, game_state.get_pathogens_with_vaccination()),
-            start=basic_options_len)}
+        if action < basic_options_len:
+            mapped_action = options.get(action)
+        else:
+            available_pathogens = self.preprocessor.sort_pathogens(game_state.get_pathogens(),
+                                                                   game_state.get_cities())[:MAX_PATHOGENS]
 
-        medication_actions = {i: action for i, action in enumerate(
-            self.generate_city_med_actions(city, available_pathogens, game_state.get_pathogens_with_medication()),
-            start=basic_options_len + MAX_PATHOGENS)}
+            vaccine_actions = {i: action for i, action in enumerate(
+                self.generate_city_vaccine_actions(city, available_pathogens,
+                                                   game_state.get_pathogens_with_vaccination()),
+                start=basic_options_len)}
 
-        options.update(vaccine_actions)
-        options.update(medication_actions)
-        action = options.get(action)
+            medication_actions = {i: action for i, action in enumerate(
+                self.generate_city_med_actions(city, available_pathogens, game_state.get_pathogens_with_medication()),
+                start=basic_options_len + MAX_PATHOGENS)}
 
+            options.update(vaccine_actions)
+            options.update(medication_actions)
+            mapped_action = options.get(action)
+
+        return self.penalize_action(mapped_action, game_state)
+
+    def penalize_action(self, action: Action, game_state: GameState):
         if action in actions.generate_possible_actions_parallelized(game_state):
             if action == INVALID_ACTION:
                 penalty = -20
