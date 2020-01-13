@@ -113,7 +113,7 @@ class SimplifiedIC20Environment(ExternalEnv):
         episode = self._get(episode_id)
         preprocessed_observation = self.preprocessor.preprocess(observation)[:MAX_CITIES]
         action, penalty = self._choose_affordable_action(episode, preprocessed_observation, observation)
-        action_json = action.get_json()
+        action_json = action.json
         print(f"Action: {action_json}")
         return action_json, preprocessed_observation, penalty
 
@@ -121,7 +121,7 @@ class SimplifiedIC20Environment(ExternalEnv):
         action = self.wait_for_action(preprocessed_observation, episode)
         print(f'discrete-action: {action}')
         mapped_action, penalty = self._map_actions(action, observation)
-        while mapped_action.get_cost() > observation.get_available_points():
+        while mapped_action.cost > observation.points:
             action = self.wait_for_action(preprocessed_observation, episode)
             mapped_action, penalty = self._map_actions(action, observation)
         return mapped_action, penalty
@@ -154,12 +154,12 @@ class SimplifiedIC20Environment(ExternalEnv):
         if chosen_action < basic_options_len:
             mapped_action = options.get(chosen_action)
         else:
-            available_pathogens = self.preprocessor.sort_pathogens(game_state.get_pathogens(),
-                                                                   game_state.get_cities())[:MAX_PATHOGENS]
-            pathogens_with_vaccine = [*game_state.get_pathogens_with_vaccination(),
-                                      *game_state.get_pathogens_with_vaccination_in_development()]
-            pathogens_with_meds = [*game_state.get_pathogens_with_medication(),
-                                   *game_state.get_pathogens_with_medication_in_development()]
+            available_pathogens = self.preprocessor.sort_pathogens(game_state.pathogens,
+                                                                   game_state.cities)[:MAX_PATHOGENS]
+            pathogens_with_vaccine = [*game_state.pathogens_with_vaccination,
+                                      *game_state.pathogens_with_vaccination_in_development]
+            pathogens_with_meds = [*game_state.pathogens_with_medication,
+                                   *game_state.pathogens_with_medication_in_development]
 
             available_pathogens_without_vaccine = list(filter(lambda pathogen: pathogen not in pathogens_with_vaccine,
                                                               available_pathogens))
@@ -183,7 +183,7 @@ class SimplifiedIC20Environment(ExternalEnv):
     def _map_city_actions(self, chosen_action, game_state: GameState) -> Tuple[Action, float]:
         city_id = int(np.floor(chosen_action / CITY_ACTIONSPACE))
         action = chosen_action % CITY_ACTIONSPACE
-        city = game_state.get_cities()[city_id]
+        city = game_state.cities[city_id]
 
         options = {0: actions.quarantine_city(city_id, number_of_rounds=2),
                    1: actions.close_airport(city_id, number_of_rounds=2),
@@ -196,16 +196,16 @@ class SimplifiedIC20Environment(ExternalEnv):
         if action < basic_options_len:
             mapped_action = options.get(action)
         else:
-            available_pathogens = self.preprocessor.sort_pathogens(game_state.get_pathogens(),
-                                                                   game_state.get_cities())[:MAX_PATHOGENS]
+            available_pathogens = self.preprocessor.sort_pathogens(game_state.pathogens,
+                                                                   game_state.cities)[:MAX_PATHOGENS]
 
             vaccine_actions = {i: action for i, action in enumerate(
                 self.generate_city_vaccine_actions(city, available_pathogens,
-                                                   game_state.get_pathogens_with_vaccination()),
+                                                   game_state.pathogens_with_vaccination),
                 start=basic_options_len)}
 
             medication_actions = {i: action for i, action in enumerate(
-                self.generate_city_med_actions(city, available_pathogens, game_state.get_pathogens_with_medication()),
+                self.generate_city_med_actions(city, available_pathogens, game_state.pathogens_with_medication),
                 start=basic_options_len + MAX_PATHOGENS)}
 
             options.update(vaccine_actions)
@@ -229,8 +229,8 @@ class SimplifiedIC20Environment(ExternalEnv):
                                       pathogens_with_vaccination: List[Pathogen]):
         city_pathogens_with_vaccine = filter(lambda city_pathogen:
                                              city_pathogen in pathogens_with_vaccination,
-                                             city.get_pathogens())
-        ordered_city_pathogens_with_vaccine = [actions.deploy_vaccine(pathogen.get_id(), city.get_city_id())
+                                             city.pathogens)
+        ordered_city_pathogens_with_vaccine = [actions.deploy_vaccine(pathogen.index, city.index)
                                                if pathogen in city_pathogens_with_vaccine
                                                else INVALID_ACTION
                                                for pathogen in ordered_available_pathogens]
@@ -240,8 +240,8 @@ class SimplifiedIC20Environment(ExternalEnv):
                                   pathogens_with_medication: List[Pathogen]):
         city_pathogens_with_medication = filter(lambda city_pathogen:
                                                 city_pathogen in pathogens_with_medication,
-                                                city.get_pathogens())
-        ordered_city_pathogens_with_medication = [actions.deploy_vaccine(pathogen.get_id(), city.get_city_id())
+                                                city.pathogens)
+        ordered_city_pathogens_with_medication = [actions.deploy_vaccine(pathogen.index, city.index)
                                                   if pathogen in city_pathogens_with_medication
                                                   else INVALID_ACTION
                                                   for pathogen in ordered_available_pathogens]
@@ -251,7 +251,7 @@ class SimplifiedIC20Environment(ExternalEnv):
                                         pathogens_without_vaccination: List[Pathogen]):
 
         ordered_gamestate_pathogens_with_vaccine = map(lambda gamestate_pathogen:
-                                                          actions.develop_vaccine(gamestate_pathogen.get_id())
+                                                          actions.develop_vaccine(gamestate_pathogen.index)
                                                           if gamestate_pathogen in pathogens_without_vaccination
                                                           else INVALID_ACTION,
                                                           gamestate_pathogens)
@@ -261,7 +261,7 @@ class SimplifiedIC20Environment(ExternalEnv):
                                     pathogens_without_medication: List[Pathogen]):
 
         ordered_gamestate_pathogens_with_medication = map(lambda gamestate_pathogen:
-                                                          actions.develop_medication(gamestate_pathogen.get_id())
+                                                          actions.develop_medication(gamestate_pathogen.index)
                                                           if gamestate_pathogen in pathogens_without_medication
                                                           else INVALID_ACTION,
                                                           gamestate_pathogens)

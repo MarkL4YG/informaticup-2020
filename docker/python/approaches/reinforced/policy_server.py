@@ -72,16 +72,16 @@ def _make_handler(external_env: ExternalEnv, controller_state: ControllerState, 
 
         def log_reward(self, state: GameState):
             reward = SimpleReward().calculate_reward(state, controller_state)
-            if state.get_outcome() == 'win':
-                reward += 100 / state.get_round()
-            elif state.get_outcome() == 'loss':
-                reward -= 100 / state.get_round()
+            if state.outcome == 'win':
+                reward += 100 / state.round
+            elif state.outcome == 'loss':
+                reward -= 100 / state.round
             external_env.log_returns(self.controller.eid, reward)
 
         def update_controller(self, state: GameState):
             self.controller.previous_population = state.get_total_population()
             self.controller.previous_infected_population = state.get_total_infected_population()
-            self.controller.previous_points = state.get_available_points()
+            self.controller.previous_points = state.points
 
         def prepare_new_episode(self, state):
             if self.controller.eid in external_env._finished:
@@ -95,21 +95,21 @@ def _make_handler(external_env: ExternalEnv, controller_state: ControllerState, 
                 self.controller.is_first_round = False
 
         def handle_round_outcome(self, state: GameState):
-            if state.get_outcome() == 'pending':
+            if state.outcome == 'pending':
                 action_json, action_observation, action_penalty = external_env.get_action(self.controller.eid,
                                                                                           observation=state)
                 self.controller.previous_penalty = action_penalty
                 self.update_controller(state)
                 return action_json
 
-            elif state.get_outcome() == 'loss':
+            elif state.outcome == 'loss':
                 external_env.end_episode(self.controller.eid,
                                          self.observation_preprocessor.preprocess(state)[:MAX_CITIES])
                 self.controller.new_eid()
                 self.controller.is_first_round = True
                 return END_EPISODE_RESPONSE
 
-            elif state.get_outcome() == 'win':
+            elif state.outcome == 'win':
                 external_env.end_episode(self.controller.eid,
                                          self.observation_preprocessor.preprocess(state)[:MAX_CITIES])
                 self.controller.new_eid()
@@ -117,6 +117,6 @@ def _make_handler(external_env: ExternalEnv, controller_state: ControllerState, 
                 return END_EPISODE_RESPONSE
 
             else:
-                raise Exception(f"Unknown outcome: {state.get_outcome()}")
+                raise Exception(f"Unknown outcome: {state.outcome}")
 
     return StatefulHandler

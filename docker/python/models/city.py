@@ -276,89 +276,49 @@ def get_city_name(city_id) -> str:
 
 class City:
 
+    name: str = None
+    index: int = 0
+    latitude: float = 0.0
+    longitude: float = 0
+    population: int = 0
+    infected_population: int = 0
+    connections: list = []
+    economy_strength: int = 0
+    government_stability: int = 0
+    hygiene_standards: int = 0
+    population_awareness: int = 0
+    events: list = []
+    pathogens: list = []
+    under_quarantine: bool = False
+
     def __init__(self, name) -> None:
         super().__init__()
-        self._name = name
-        self._index = get_city_id(name)
-        self._latitude = 0.0
-        self._longitude = 0.0
-        self._population = 0
-        self._infected_population = 0
-        self._connections = []
-        self._economyStrength = 0
-        self._governmentStability = 0
-        self._hygieneStandards = 0
-        self._populationAwareness = 0
-        self._events = []
-        self._pathogens = []
-        self._under_quarantine = False
-
-    def get_name(self):
-        return self._name
-
-    def get_city_id(self):
-        return self._index
-
-    def get_latitude(self):
-        return self._latitude
-
-    def get_longitude(self):
-        return self._longitude
-
-    def get_population(self):
-        return self._population
-
-    def get_infected_population(self):
-        return self._infected_population
-
-    def get_connections(self):
-        return self._connections
-
-    def get_economy_strength(self):
-        return self._economyStrength
-
-    def get_government_stability(self):
-        return self._governmentStability
-
-    def get_hygiene_standards(self):
-        return self._hygieneStandards
-
-    def get_population_awareness(self):
-        return self._populationAwareness
-
-    def get_events(self):
-        return self._events
-
-    def get_pathogens(self):
-        return self._pathogens
-
-    @property
-    def under_quarantine(self):
-        return self._under_quarantine
+        self.name = name
+        self.index = get_city_id(name)
 
     @staticmethod
     def from_json(city_json):
         # remove U+200E LEFT-TO-RIGHT MARK character
         city = City(city_json['name'])
-        city._latitude = city_json['latitude']
-        city._longitude = city_json['longitude']
-        city._population = city_json['population']
-        city._connections = city_json['connections']
-        city._economyStrength = strength_to_int(city_json['economy'])
-        city._governmentStability = strength_to_int(city_json['government'])
-        city._hygieneStandards = strength_to_int(city_json['hygiene'])
-        city._populationAwareness = strength_to_int(city_json['awareness'])
+        city.latitude = city_json['latitude']
+        city.longitude = city_json['longitude']
+        city.population = city_json['population']
+        city.connections = city_json['connections']
+        city.economy_strength = strength_to_int(city_json['economy'])
+        city.government_stability = strength_to_int(city_json['government'])
+        city.hygiene_standards = strength_to_int(city_json['hygiene'])
+        city.population_awareness = strength_to_int(city_json['awareness'])
 
         if 'events' in city_json:
             for eventJson in city_json['events']:
                 event = Event.from_json(eventJson)
-                city._events.append(event)
+                city.events.append(event)
 
-                if event.get_event_type() == 'outbreak':
-                    event_pathogen: Pathogen = event.get_pathogen()
-                    event_pathogen.set_prevalence(event.get_prevalence())
-                    city._pathogens.append(event_pathogen)
-                    city._infected_population += city._population * event_pathogen.get_prevalence()
-                if event.get_event_type() == 'quarantine':
-                    city._under_quarantine = True
+                if event.event_type == 'outbreak':
+                    event_pathogen: Pathogen = event.pathogen
+                    event_pathogen.prevalence = event.prevalence
+                    city.pathogens.append(event_pathogen)
+                    city.infected_population += city.population * event_pathogen.prevalence
+                if event.event_type == 'quarantine':
+                    city.under_quarantine = True
         return city

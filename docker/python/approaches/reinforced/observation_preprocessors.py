@@ -34,17 +34,17 @@ class NaivePreprocessor(ObservationPreprocessor):
         :return: tuple(tuple(lat,long), population, connections(max5), economy, gov, hygiene, populationAw, city_pathogens(max5))
         """
         city_states = []
-        sorted_game_state_pathogens = self.sort_pathogens(game_state.get_pathogens(), game_state.get_cities())
-        for city in game_state.get_cities():
-            location = (np.array([city.get_latitude()], dtype=np.float32),
-                        np.array([city.get_longitude()], dtype=np.float32))
-            population = np.array([city.get_population()], dtype=np.uint32)
-            connections = np.min((len(city.get_connections()), MAX_CONNECTIONS))
-            attributes = np.array([city.get_economy_strength(),
-                                   city.get_government_stability(),
-                                   city.get_hygiene_standards(),
-                                   city.get_population_awareness()], dtype=np.int8)
-            pathogens = self._build_pathogens_representation(city.get_pathogens(), city.get_population(),
+        sorted_game_state_pathogens = self.sort_pathogens(game_state.pathogens, game_state.cities)
+        for city in game_state.cities:
+            location = (np.array([city.latitude], dtype=np.float32),
+                        np.array([city.longitude], dtype=np.float32))
+            population = np.array([city.population], dtype=np.uint32)
+            connections = np.min((len(city.connections), MAX_CONNECTIONS))
+            attributes = np.array([city.economy_strength,
+                                   city.government_stability,
+                                   city.hygiene_standards,
+                                   city.population_awareness], dtype=np.int8)
+            pathogens = self._build_pathogens_representation(city.pathogens, city.population,
                                                              sorted_game_state_pathogens, game_state)
             city_states.append((location, population, connections, attributes, pathogens))
 
@@ -64,11 +64,11 @@ class NaivePreprocessor(ObservationPreprocessor):
             filter(lambda city_pathogen: city_pathogen in sorted_gamestate_pathogens, city_pathogens))
         for pathogen in available_pathogens[:MAX_PATHOGENS]:
             status = self._map_pathogen_status(pathogen, game_state)
-            infected_population = np.array([np.round(pathogen.get_prevalence() * city_population)], dtype=np.uint32)
-            pathogen_attributes = np.array([pathogen.get_infectivity(),
-                                            pathogen.get_mobility(),
-                                            pathogen.get_duration(),
-                                            pathogen.get_lethality()], dtype=np.int8)
+            infected_population = np.array([np.round(pathogen.prevalence * city_population)], dtype=np.uint32)
+            pathogen_attributes = np.array([pathogen.infectivity,
+                                            pathogen.mobility,
+                                            pathogen.duration,
+                                            pathogen.lethality], dtype=np.int8)
             pathogen_representation = (status, infected_population, pathogen_attributes)
             pathogen_representations = self._update_city_pathogens_representations(pathogen_representations, pathogen,
                                                                                    pathogen_representation,
@@ -80,11 +80,11 @@ class NaivePreprocessor(ObservationPreprocessor):
         return tuple(pathogen_representations)
 
     def _map_pathogen_status(self, pathogen: Pathogen, game_state: GameState):
-        pathogen_exists = lambda: pathogen in game_state.get_pathogens()
-        medication_in_development = lambda: game_state.get_pathogens_with_medication_in_development()
-        vaccination_in_development = lambda: game_state.get_pathogens_with_vaccination_in_development()
-        medication_exists = lambda: game_state.get_pathogens_with_medication()
-        vaccination_exists = lambda: game_state.get_pathogens_with_vaccination()
+        pathogen_exists = lambda: pathogen in game_state.pathogens
+        medication_in_development = lambda: game_state.pathogens_with_medication_in_development
+        vaccination_in_development = lambda: game_state.pathogens_with_vaccination_in_development
+        medication_exists = lambda: game_state.pathogens_with_medication
+        vaccination_exists = lambda: game_state.pathogens_with_vaccination
 
         if medication_exists() and vaccination_exists():
             pathogen_status = 8
@@ -135,26 +135,26 @@ class NaivePreprocessor(ObservationPreprocessor):
                                   key=lambda pathogen:
                                   reduce(lambda count, infected_population: count + infected_population,
                                          map(self.sorting_strategy,
-                                             filter(lambda city: pathogen in city.get_pathogens(),
+                                             filter(lambda city: pathogen in city.pathogens,
                                                     cities), repeat(pathogen)), initial_value))
         return sorted_pathogens
 
     def _get_pathogen_population(self, game_state: GameState, pathogen: Pathogen):
-        infected_cities = filter(lambda city: pathogen in city.get_pathogens(), game_state.get_cities())
+        infected_cities = filter(lambda city: pathogen in city.pathogens, game_state.cities)
         infected_population_per_city = map(lambda city:
-                                           city.get_population() * list(filter(
-                                               lambda city_pathogen: city_pathogen.get_id() == pathogen.get_id(),
-                                               city.get_pathogens()))[0].get_prevalence(), infected_cities)
+                                           city.population * list(filter(
+                                               lambda city_pathogen: city_pathogen.index == pathogen.index,
+                                               city.pathogens))[0].prevalence, infected_cities)
         total_infected_population = reduce(lambda accu, infected_city_pop: accu + infected_city_pop,
                                            infected_population_per_city, 0)
         return total_infected_population
 
 
 def prevalence_sorting(city: City, pathogen: Pathogen) -> float:
-    city_pathogen_ids = list(map(lambda city_pathogen: city_pathogen.get_id(), city.get_pathogens()))
-    if pathogen.get_id() in city_pathogen_ids:
-        pathogen_index = city_pathogen_ids.index(pathogen.get_id())
-        pathogen_prevalence = city.get_pathogens()[pathogen_index].get_prevalence()
-        return city.get_population() * pathogen_prevalence
+    city_pathogen_ids = list(map(lambda city_pathogen: city_pathogen.index, city.pathogens))
+    if pathogen.index in city_pathogen_ids:
+        pathogen_index = city_pathogen_ids.index(pathogen.index)
+        pathogen_prevalence = city.pathogens[pathogen_index].prevalence
+        return city.population * pathogen_prevalence
     else:
         return 0
