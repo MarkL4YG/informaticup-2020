@@ -125,7 +125,7 @@ class SimpleObsStateProcessor(ObservationStateProcessor):
                                                                                    pathogen_representation,
                                                                                    available_pathogens)
 
-        for _ in range(MAX_PATHOGENS - len(city_pathogens)):
+        for _ in range(MAX_PATHOGENS - len(available_pathogens[:MAX_PATHOGENS])):
             pathogen_representations.append(self._build_pathogen_stub())
 
         return tuple(pathogen_representations)

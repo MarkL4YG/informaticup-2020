@@ -26,11 +26,12 @@ known_event_types = [
 
 class Event:
 
-    event_type: str = None
-    since_round: int = 0
-    pathogen: Pathogen = None
-    prevalence: float = 0.0
-    participants: int = 0
+    def __init__(self):
+        self.event_type: str = None
+        self.since_round: int = 0
+        self.pathogen: Pathogen = None
+        self.prevalence: float = 0.0
+        self.participants: int = 0
 
     @staticmethod
     def from_json(event_json):

@@ -82,7 +82,8 @@ class SimplifiedIC20Environment(ExternalEnv):
 
             trial_count += 1
             if trial_count >= self.trial_max:
-                mapped_action = actions.end_round()
+                mapped_action = INVALID_ACTION
+                break
 
         return mapped_action, penalty
 
