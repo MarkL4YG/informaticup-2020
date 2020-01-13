@@ -54,7 +54,7 @@ def _make_handler(external_env: ExternalEnv, controller_state: ControllerState, 
                     self.send_response(200)
                     self.end_headers()
                     self.wfile.write(json.dumps(response).encode('utf-8'))
-            except Exception:
+            except Exception as e:
                 self.send_error(500, traceback.format_exc())
 
         def handle_game(self, game_json: dict):
@@ -129,7 +129,7 @@ def _make_handler(external_env: ExternalEnv, controller_state: ControllerState, 
         def update_controller(self, state: GameState, action_penalty: float = 0, invalid_action=False):
             self._controller.previous_population = state.get_total_population()
             self._controller.previous_infected_population = state.get_total_infected_population()
-            self._controller.previous_points = state.get_available_points()
+            self._controller.previous_points = state.points
             self._controller.previous_penalty = action_penalty
             if invalid_action:
                 self._controller.invalid_action_count += 1

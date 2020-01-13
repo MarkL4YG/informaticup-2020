@@ -44,18 +44,6 @@ class SimpleObsStateProcessor(ObservationStateProcessor):
 
     def preprocess_obs(self, game_state: GameState) -> List:
         city_states = []
-        sorted_game_state_pathogens = self.sort_pathogens(game_state.get_pathogens(), game_state.get_cities())
-        for city in game_state.get_cities():
-            location = (np.array([city.get_latitude()], dtype=np.float32),
-                        np.array([city.get_longitude()], dtype=np.float32))
-            population = np.array([city.get_population()], dtype=np.uint32)
-            connections = np.min((len(city.get_connections()), MAX_CONNECTIONS))
-            attributes = np.array([city.get_economy_strength(),
-                                   city.get_government_stability(),
-                                   city.get_hygiene_standards(),
-                                   city.get_population_awareness()], dtype=np.int8)
-            pathogens = self._build_pathogen_obs_representation(city.get_pathogens(), city.get_population(),
-                                                                sorted_game_state_pathogens, game_state)
         sorted_game_state_pathogens = self.sort_pathogens(game_state.pathogens, game_state.cities)
         for city in game_state.cities:
             location = (np.array([city.latitude], dtype=np.float32),
@@ -66,8 +54,8 @@ class SimpleObsStateProcessor(ObservationStateProcessor):
                                    city.government_stability,
                                    city.hygiene_standards,
                                    city.population_awareness], dtype=np.int8)
-            pathogens = self._build_pathogens_representation(city.pathogens, city.population,
-                                                             sorted_game_state_pathogens, game_state)
+            pathogens = self._build_pathogen_obs_representation(city.pathogens, city.population,
+                                                                sorted_game_state_pathogens, game_state)
             city_states.append((location, population, connections, attributes, pathogens))
 
         return city_states[:MAX_CITIES]
@@ -79,7 +67,7 @@ class SimpleObsStateProcessor(ObservationStateProcessor):
                                   key=lambda pathogen:
                                   reduce(lambda count, infected_population: count + infected_population,
                                          map(self.pathogen_sorting_strategy,
-                                             filter(lambda city: pathogen in city.get_pathogens(),
+                                             filter(lambda city: pathogen in city.pathogens,
                                                     cities), repeat(pathogen)), initial_value))
         return sorted_pathogens[:MAX_PATHOGENS]
 
