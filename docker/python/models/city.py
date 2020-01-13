@@ -280,7 +280,6 @@ class City:
         super().__init__()
         self.name: str = name
         self.index = get_city_id(name)
-        self.index: int = 0
         self.latitude: float = 0.0
         self.longitude: float = 0
         self.population: int = 0

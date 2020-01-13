@@ -43,7 +43,6 @@ class Pathogen:
         super().__init__()
         self.name: str = pathogen_name
         self.index = get_pathogen_id(pathogen_name)
-        self.index: int = -1
         self.infectivity: int = 0
         self.mobility: int = 0
         self.duration: int = 0
