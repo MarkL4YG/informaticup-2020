@@ -1,6 +1,7 @@
 import os
 
 import ray
+from ray.rllib.agents.dqn import ApexTrainer
 from ray.rllib.agents.ppo import PPOTrainer
 from ray.tune import register_env
 from ray.tune.logger import pretty_print
@@ -17,16 +18,16 @@ if __name__ == "__main__":
     # Notice that trial_max will only work for stochastic policies
     register_env("ic20env", lambda _: SimplifiedIC20Environment(obs_state_processor, act_state_processor, trial_max=10))
 
-    trainer = PPOTrainer(
+    trainer = ApexTrainer(
         env="ic20env",
         config={
-            "num_gpus": 0,
-            "gamma": 0.99,
-            "lr": 0.0001,
-            "sgd_minibatch_size": 1000,
-            "batch_mode": "complete_episodes",
-            "num_workers": 0,
-            "timesteps_per_iteration": 200,
+            'num_gpus': 0,
+            'gamma': 0.99,
+            'lr': 0.0001,
+            'sgd_minibatch_size': 1000,
+            'batch_mode': 'complete_episodes',
+            'num_workers': 0,
+            'timesteps_per_iteration': 200,
         })
 
     # Attempt to restore from checkpoint if possible.
