@@ -1,4 +1,5 @@
 import numpy as np
+from ray.rllib.models import MODEL_DEFAULTS
 
 END_ROUND_ACTION = 0
 MAX_CONNECTIONS = 11
@@ -23,3 +24,41 @@ NEUTRAL_REWARD = 0
 PATH_TO_IC20 = "./ic20_linux"
 INVALID_ACTION = None
 UINT32_MAX = np.iinfo(np.uint32).max
+
+DEFAULT_CONFIG = {
+    # -- Rollout-Worker
+    'num_gpus': 0,
+    'num_workers': 0,
+    "num_cpus_per_worker": 1,
+    "num_gpus_per_worker": 0,
+    "num_envs_per_worker": 1,
+
+    # -- Trainer details
+    "model": MODEL_DEFAULTS,
+    "optimizer": {},
+
+    # -- MDP details
+    "clip_rewards": None,
+    "clip_actions": True,
+    'timesteps_per_iteration': 200,
+
+    # -- Evaluation
+    # Number of episodes to run per evaluation period.
+    "evaluation_num_episodes": 10,
+
+    # -- Multiagent
+    "multiagent": {
+        "policies": {},
+        "policy_mapping_fn": None,
+        "policies_to_train": None
+    },
+
+    # -- Debug
+    "log_level": "WARN",
+    "eager": False,
+    "seed": None,
+    "memory": 0,
+    "object_store_memory": 0,
+    "memory_per_worker": 0,
+    "object_store_memory_per_worker": 0
+}
