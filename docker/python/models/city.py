@@ -276,26 +276,24 @@ def get_city_name(city_id) -> str:
 
 class City:
 
-    name: str = None
-    index: int = 0
-    latitude: float = 0.0
-    longitude: float = 0
-    population: int = 0
-    infected_population: int = 0
-    connections: list = []
-    economy_strength: int = 0
-    government_stability: int = 0
-    hygiene_standards: int = 0
-    population_awareness: int = 0
-    events: list = []
-    pathogens: list = []
-    under_quarantine: bool = False
-    airport_closed: bool = False
-
     def __init__(self, name) -> None:
         super().__init__()
-        self.name = name
+        self.name: str = name
         self.index = get_city_id(name)
+        self.index: int = 0
+        self.latitude: float = 0.0
+        self.longitude: float = 0
+        self.population: int = 0
+        self.infected_population: int = 0
+        self.connections: list = []
+        self.economy_strength: int = 0
+        self.government_stability: int = 0
+        self.hygiene_standards: int = 0
+        self.population_awareness: int = 0
+        self.events: list = []
+        self.pathogens: list = []
+        self.under_quarantine: bool = False
+        self.airport_closed: bool = False
 
     @staticmethod
     def from_json(city_json):

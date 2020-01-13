@@ -4,16 +4,18 @@ from models.event import Event
 
 
 class GameState:
-    round: int = 0
-    outcome: str = 'pending'
-    points: int = 0
-    cities: list = []
-    global_events: list = []
-    pathogens: list = []
-    pathogens_with_medication: list = []
-    pathogens_with_vaccination: list = []
-    pathogens_with_medication_in_development: list = []
-    pathogens_with_vaccination_in_development: list = []
+
+    def __init__(self):
+        self.round: int = 0
+        self.outcome: str = 'pending'
+        self.points: int = 0
+        self.cities: list = []
+        self.global_events: list = []
+        self.pathogens: list = []
+        self.pathogens_with_medication: list = []
+        self.pathogens_with_vaccination: list = []
+        self.pathogens_with_medication_in_development: list = []
+        self.pathogens_with_vaccination_in_development: list = []
     error: object = None
 
     def get_total_population(self):
@@ -30,9 +32,9 @@ class GameState:
 
 def state_from_json(json) -> GameState:
     state: GameState = GameState()
-    state._round = json['round']
-    state._outcome = json['outcome']
-    state._points = json['points']
+    state.round = json['round']
+    state.outcome = json['outcome']
+    state.points = json['points']
     for cityJson in json['cities'].values():
         city = City.from_json(cityJson)
         state.cities.append(city)

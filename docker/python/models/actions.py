@@ -8,10 +8,6 @@ from models.pathogen import get_pathogen_name, Pathogen
 
 
 class Action:
-
-    json: dict = {}
-    cost: int = 0
-
     def __init__(self, json, cost):
         self.json = json
         self.cost = cost
@@ -21,6 +17,12 @@ class Action:
             return self.json == other.json
         else:
             return False
+
+    def __hash__(self):
+        return hash(self.json)
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
 
 
 def end_round() -> Action:
@@ -247,7 +249,7 @@ def actions_gte20(available_points: int, city: City):
     actions = []
     if available_points > 20 and not city.airport_closed:
         for i in range(1, int((available_points - 15) / 5) + 1):
-            actions.append(close_airport(city.get_city_id(), i))
+            actions.append(close_airport(city.index, i))
     return actions
 
 

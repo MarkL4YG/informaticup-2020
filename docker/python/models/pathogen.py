@@ -39,18 +39,16 @@ def get_pathogen_name(pathogen_id) -> str:
 
 class Pathogen:
 
-    name: str = '__unknown__'
-    index: int = -1
-    infectivity: int = 0
-    mobility: int = 0
-    duration: int = 0
-    lethality: int = 0
-    prevalence: int = 0
-
     def __init__(self, pathogen_name):
         super().__init__()
-        self.name = pathogen_name
+        self.name: str = pathogen_name
         self.index = get_pathogen_id(pathogen_name)
+        self.index: int = -1
+        self.infectivity: int = 0
+        self.mobility: int = 0
+        self.duration: int = 0
+        self.lethality: int = 0
+        self.prevalence: int = 0
 
     def __hash__(self):
         return hash(self.index)

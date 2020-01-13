@@ -3,5 +3,6 @@ from models.actions import Action
 
 class Round:
 
-    state: str = '__unknown__'
-    action: Action = None
+    def __init__(self, state, action):
+        self.state: str = state
+        self.action: Action = action
