@@ -1,5 +1,5 @@
 # An unique identifier for the head node and workers of this cluster.
-cluster_name: ray-test-cluster-ic20
+cluster_name: ray-cluster-ic20-0
 
 # The minimum number of workers nodes to launch in addition to the head
 # node. This number should be >= 0.
@@ -70,7 +70,7 @@ auth:
 # For more documentation on available fields, see:
 # http://boto3.readthedocs.io/en/latest/reference/services/ec2.html#EC2.ServiceResource.create_instances
 head_node:
-  InstanceType: p2.xlarge
+  InstanceType: inf1.xlarge
   ImageId: ami-0bb99846db2df6e38 # Deep Learning AMI (Ubuntu) Version 26.0
 
   # You can provision additional disk space with a conf as follows
