@@ -151,8 +151,8 @@ def generate_possible_actions(game_state):
                 for i in range(1, int((available_points - 3) / 3) + 1):
                     actions.append(close_airway(city_id, get_city_id(other_city), i))
 
-        if available_points > 20:
-            for i in range(1, int((available_points - 15) / 5) + 1) and not city.airport_closed:
+        if available_points > 20 and not city.airport_closed:
+            for i in range(1, int((available_points - 15) / 5) + 1):
                 actions.append(close_airport(city_id, i))
 
         if available_points > 30:
@@ -247,8 +247,8 @@ def actions_gte6(available_points: int, city_id, city):
 @ray.remote
 def actions_gte20(available_points: int, city: City):
     actions = []
-    if available_points > 20:
-        for i in range(1, int((available_points - 15) / 5) + 1) and not city.airport_closed:
+    if available_points > 20 and not city.airport_closed:
+        for i in range(1, int((available_points - 15) / 5) + 1):
             actions.append(close_airport(city.get_city_id(), i))
     return actions
 
