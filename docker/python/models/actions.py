@@ -151,7 +151,7 @@ def generate_possible_actions(game_state):
                 for i in range(1, int((available_points - 3) / 3) + 1):
                     actions.append(close_airway(city_id, get_city_id(other_city), i))
 
-        if available_points > 20:
+        if available_points > 20 and not city.airport_closed:
             for i in range(1, int((available_points - 15) / 5) + 1):
                 actions.append(close_airport(city_id, i))
 
@@ -245,11 +245,11 @@ def actions_gte6(available_points: int, city_id, city):
 
 
 @ray.remote
-def actions_gte20(available_points: int, city_id: int):
+def actions_gte20(available_points: int, city: City):
     actions = []
-    if available_points > 20:
+    if available_points > 20 and not city.airport_closed:
         for i in range(1, int((available_points - 15) / 5) + 1):
-            actions.append(close_airport(city_id, i))
+            actions.append(close_airport(city.get_city_id(), i))
     return actions
 
 
@@ -269,7 +269,7 @@ def get_all_city_actions(available_points, game_state):
 
         actions_gte3_ref = actions_gte3.remote(available_points, city_id)
         actions_gte6_ref = actions_gte6.remote(available_points, city_id, city)
-        actions_gte20_ref = actions_gte20.remote(available_points, city_id)
+        actions_gte20_ref = actions_gte20.remote(available_points, city)
         actions_gte30_ref = actions_gte30.remote(available_points, city)
 
         city_pathogen_action_refs = []
