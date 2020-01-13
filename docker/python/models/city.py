@@ -290,6 +290,7 @@ class City:
     events: list = []
     pathogens: list = []
     under_quarantine: bool = False
+    airport_closed: bool = False
 
     def __init__(self, name) -> None:
         super().__init__()
@@ -319,6 +320,8 @@ class City:
                     event_pathogen.prevalence = event.prevalence
                     city.pathogens.append(event_pathogen)
                     city.infected_population += city.population * event_pathogen.prevalence
-                if event.event_type == 'quarantine':
+                elif event.event_type == 'quarantine':
                     city.under_quarantine = True
+                elif event.event_type == 'airportClosed':
+                    city.airport_closed = True
         return city
