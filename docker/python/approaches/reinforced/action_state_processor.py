@@ -5,7 +5,7 @@ import numpy as np
 from gym import Space, spaces
 
 from approaches.reinforced.constants import MAX_ACTIONSPACE, MAX_PATHOGENS, CITY_ACTIONSPACE, INVALID_ACTION, \
-    GLOBAL_ACTIONSPACE, NEUTRAL_REWARD
+    GLOBAL_ACTIONSPACE, NEUTRAL_REWARD, INVALID_ACTION_PENALTY
 from models import actions
 from models.actions import Action
 from models.gamestate import GameState
@@ -159,10 +159,10 @@ class SimpleActStateProcessor(ActionStateProcessor):
     def penalize_action(cls, action: Action, game_state: GameState) -> Tuple[Optional[Action], float]:
         if action in actions.generate_possible_actions(game_state):
             if action == INVALID_ACTION:
-                penalty = -1
+                penalty = INVALID_ACTION_PENALTY
                 return action, penalty
             else:
                 return action, NEUTRAL_REWARD
         else:
-            penalty = -1
+            penalty = INVALID_ACTION_PENALTY
             return action, penalty

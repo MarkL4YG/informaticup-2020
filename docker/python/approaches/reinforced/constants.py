@@ -1,9 +1,10 @@
 import numpy as np
+from ray.rllib.evaluation import MultiAgentEpisode
 from ray.rllib.models import MODEL_DEFAULTS
 
 END_ROUND_ACTION = 0
 MAX_CONNECTIONS = 11
-MAX_CITIES = 5
+MAX_CITIES = 260
 
 # global action-space:
 # [end_round[0],
@@ -24,6 +25,27 @@ NEUTRAL_REWARD = 0
 PATH_TO_IC20 = "./ic20_linux"
 INVALID_ACTION = None
 UINT32_MAX = np.iinfo(np.uint32).max
+INVALID_ACTION_PENALTY = -1
+
+
+# noinspection PyStatementEffect
+def on_episode_end(info):
+    episode: MultiAgentEpisode = info['episode']
+    info = episode.last_info_for()
+    outcome = info['outcome']
+    rounds_played = info['rounds_played']
+    print(f"episode {episode.episode_id} with: #actions: {episode.length}, "
+          f"Rounds: {rounds_played}, "
+          f"Outcome: {outcome}, "
+          f"Reward: {episode.total_reward}")
+    if outcome == 'win':
+        episode.custom_metrics["rounds_played_until_win"] = rounds_played
+        episode.custom_metrics["round_outcome"] = outcome
+
+    if outcome == 'loss':
+        episode.custom_metrics["rounds_played_until_loss"] = rounds_played
+        episode.custom_metrics["round_outcome"] = outcome
+
 
 DEFAULT_CONFIG = {
     # -- Trainer details
@@ -38,6 +60,9 @@ DEFAULT_CONFIG = {
     # -- Evaluation
     # Number of episodes to run per evaluation period.
     "evaluation_num_episodes": 10,
+    "callbacks": {
+        "on_episode_end": on_episode_end
+    },
 
     # -- Multiagent
     "multiagent": {

@@ -5,7 +5,7 @@ from ray.rllib.env import ExternalEnv
 from ray.rllib.env.external_env import _ExternalEnvEpisode
 
 from approaches.reinforced.action_state_processor import ActionStateProcessor
-from approaches.reinforced.constants import INVALID_ACTION
+from approaches.reinforced.constants import INVALID_ACTION, INVALID_ACTION_PENALTY
 from approaches.reinforced.observation_state_processor import ObservationStateProcessor
 from approaches.reinforced.policy_server import PolicyServer
 from approaches.reinforced.util import get_available_port
@@ -72,8 +72,9 @@ class SimplifiedIC20Environment(ExternalEnv):
 
     def _choose_actionable_action(self, episode, observation) -> Tuple[Action, float]:
         preprocessed_observation = self.obs_space_processor.preprocess_obs(observation)
-        action = self._wait_for_action(preprocessed_observation, episode)
-        mapped_action, penalty = self.act_space_processor.map_action(action, observation)
+        mapped_action = INVALID_ACTION
+        penalty = 0
+
         trial_count = 0
         while (mapped_action == INVALID_ACTION or mapped_action.cost > observation.points) \
                 or mapped_action not in actions.generate_possible_actions(observation):
@@ -83,6 +84,7 @@ class SimplifiedIC20Environment(ExternalEnv):
             trial_count += 1
             if trial_count >= self.trial_max:
                 mapped_action = INVALID_ACTION
+                penalty = INVALID_ACTION_PENALTY
                 break
 
         return mapped_action, penalty

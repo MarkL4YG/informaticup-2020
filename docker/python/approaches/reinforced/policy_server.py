@@ -74,19 +74,17 @@ def _make_handler(external_env: ExternalEnv, controller_state: ControllerState, 
 
         def log_reward(self, state: GameState):
             reward = SimpleReward().calculate_reward(state, controller_state)
+            info = None
             if state.outcome == 'win':
+                info = {'outcome': 'win', 'rounds_played': state.round,
+                        'invalid_actions_taken': self._controller.invalid_action_count}
                 reward += 500 / state.round
-                print(f"Win, "
-                      f"Round: {state.round}, "
-                      f"Round Reward: {reward}, "
-                      f"Invalid-Actions: {self._controller.invalid_action_count}")
             elif state.outcome == 'loss':
                 reward -= 500 / state.round
-                print(f"Loss, "
-                      f"Round: {state.round}, "
-                      f"Round Reward: {reward}, "
-                      f"Invalid-Actions: {self._controller.invalid_action_count}")
-            external_env.log_returns(self._controller.eid, reward)
+                info = {'outcome': 'loss', 'rounds_played': state.round,
+                        'invalid_actions_taken': self._controller.invalid_action_count}
+
+            external_env.log_returns(self._controller.eid, reward, info)
 
         # noinspection PyProtectedMember
         def prepare_new_episode(self, state):
@@ -103,9 +101,11 @@ def _make_handler(external_env: ExternalEnv, controller_state: ControllerState, 
         def handle_round_outcome(self, state: GameState):
             if state.outcome == 'pending':
                 action, action_penalty = external_env.get_action(self._controller.eid, state)
+                invalid_action_taken = False
                 if action == INVALID_ACTION:
+                    invalid_action_taken = True
                     action = actions.end_round()
-                self.update_controller(state, action_penalty, action == INVALID_ACTION)
+                self.update_controller(state, action_penalty, invalid_action_taken)
                 print(action.json)
                 return action.json
 

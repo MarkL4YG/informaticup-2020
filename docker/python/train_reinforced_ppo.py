@@ -18,6 +18,7 @@ if __name__ == "__main__":
 
     # Notice that trial_max will only work for stochastic policies
     register_env("ic20env", lambda _: SimplifiedIC20Environment(obs_state_processor, act_state_processor, trial_max=10))
+    twelve_gig = 12884895290
 
     trainer = PPOTrainer(
         env="ic20env",
@@ -25,9 +26,9 @@ if __name__ == "__main__":
             # -- Rollout-Worker
             'num_gpus': 0,
             'num_workers': 0,
-            "num_cpus_per_worker": 1,
-            "num_gpus_per_worker": 0,
             "num_envs_per_worker": 1,
+            "num_cpus_per_worker": 0.6,
+            "memory_per_worker": 0,
 
             # -- Specific parameters
             "use_gae": True,
