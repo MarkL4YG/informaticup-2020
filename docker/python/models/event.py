@@ -29,9 +29,12 @@ class Event:
     def __init__(self):
         self.event_type: str = None
         self.since_round: int = 0
+        self.untilRound = 0
         self.pathogen: Pathogen = None
         self.prevalence: float = 0.0
         self.participants: int = 0
+        self.city = None
+
 
     @staticmethod
     def from_json(event_json):
@@ -47,6 +50,9 @@ class Event:
         if 'sinceRound' in event_json:
             event.since_round = int(event_json['sinceRound'])
 
+        if 'untilRound' in event_json:
+            event.untilRound = int(event_json['untilRound'])
+
         if 'pathogen' in event_json:
             event.pathogen = Pathogen.from_json(event_json['pathogen'])
 
@@ -55,5 +61,8 @@ class Event:
 
         if 'prevalence' in event_json:
             event.prevalence = event_json['prevalence']
+
+        if 'city' in event_json:
+            event.city = event_json['city']
 
         return event
