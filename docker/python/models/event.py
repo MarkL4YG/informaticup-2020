@@ -31,6 +31,7 @@ class Event:
         self._eventType = None
         self._sinceRound = 0
         self._untilRound = 0
+        self._round = 0
         self._pathogen = None
         self._prevalence = 0.0
         self._participants = 0
@@ -44,6 +45,9 @@ class Event:
 
     def get_until_round(self):
         return self._untilRound
+
+    def get_round(self):
+        return self._round
 
     def get_pathogen(self):
         return self._pathogen
@@ -73,6 +77,9 @@ class Event:
 
         if 'untilRound' in event_json:
             event._untilRound = int(event_json['untilRound'])
+
+        if 'round' in event_json:
+            event._round = int(event_json['round'])
 
         if 'pathogen' in event_json:
             event._pathogen = Pathogen.from_json(event_json['pathogen'])
