@@ -30,15 +30,20 @@ class Event:
         super().__init__()
         self._eventType = None
         self._sinceRound = 0
+        self._untilRound = 0
         self._pathogen = None
         self._prevalence = 0.0
         self._participants = 0
+        self._city = None
 
     def get_event_type(self):
         return self._eventType
 
     def get_since_round(self):
         return self._sinceRound
+
+    def get_until_round(self):
+        return self._untilRound
 
     def get_pathogen(self):
         return self._pathogen
@@ -48,6 +53,9 @@ class Event:
 
     def get_participants(self):
         return self._participants
+
+    def get_city(self):
+        return self._city
 
     @staticmethod
     def from_json(event_json):
@@ -63,6 +71,9 @@ class Event:
         if 'sinceRound' in event_json:
             event._sinceRound = int(event_json['sinceRound'])
 
+        if 'untilRound' in event_json:
+            event._untilRound = int(event_json['untilRound'])
+
         if 'pathogen' in event_json:
             event._pathogen = Pathogen.from_json(event_json['pathogen'])
 
@@ -71,5 +82,8 @@ class Event:
 
         if 'prevalence' in event_json:
             event._prevalence = event_json['prevalence']
+
+        if 'city' in event_json:
+            event._city = event_json['city']
 
         return event
