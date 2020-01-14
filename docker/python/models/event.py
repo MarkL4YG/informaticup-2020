@@ -51,7 +51,7 @@ class Event:
             event.since_round = int(event_json['sinceRound'])
 
         if 'untilRound' in event_json:
-            event.untilRound = int(event_json['untilRound'])
+            event.until_round = int(event_json['untilRound'])
 
         if 'pathogen' in event_json:
             event.pathogen = Pathogen.from_json(event_json['pathogen'])
