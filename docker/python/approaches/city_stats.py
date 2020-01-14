@@ -24,42 +24,38 @@ def calculate_priority_increase(population, score):
     return population * (2 - score)
 
 
+def get_events_in_current_round(events, event_type, current_round):
+    return list(filter(lambda event: event.event_type == event_type and event.round == current_round, events))
+
+
 def process_round(state: GameState):
-    if state.get_available_points() >= 3:
-        cities = state.get_cities()
-        round = state.get_round()
+    if state.points >= 3:
+        cities = state.cities
+        current_round = state.round
         possible_actions = []
 
         for city in cities:
-            events = city.get_events()
+            events = city.events
 
-            influence_events = list(
-                filter(lambda event: event.get_event_type() == "influenceExerted" and event.get_round() == round,
-                       events))
+            influence_events = get_events_in_current_round(events, "influenceExerted", current_round)
             if not influence_events:
-                influence_priority = calculate_priority_random(city.get_population(), city.get_economy_strength())
-                possible_actions.append(Action(influence_priority, exert_political_influence(city.get_city_id())))
+                influence_priority = calculate_priority_random(city.population, city.economy_strength)
+                possible_actions.append(Action(influence_priority, exert_political_influence(city.index)))
 
-            elections_events = list(
-                filter(lambda event: event.get_event_type() == "electionsCalled" and event.get_round() == round,
-                       events))
+            elections_events = get_events_in_current_round(events, "electionsCalled", current_round)
             if not elections_events:
-                elections_priority = calculate_priority_random(city.get_population(), city.get_government_stability())
-                possible_actions.append(Action(elections_priority, call_for_elections(city.get_city_id())))
+                elections_priority = calculate_priority_random(city.population, city.government_stability)
+                possible_actions.append(Action(elections_priority, call_for_elections(city.index)))
 
-            hygienic_events = list(
-                filter(lambda event: event.get_event_type() == "hygienicMeasuresApplied" and event.get_round() == round,
-                       events))
+            hygienic_events = get_events_in_current_round(events, "hygienicMeasuresApplied", current_round)
             if not hygienic_events:
-                hygienic_priority = calculate_priority_increase(city.get_population(), city.get_hygiene_standards())
-                possible_actions.append(Action(hygienic_priority, apply_hygienic_measures(city.get_city_id())))
+                hygienic_priority = calculate_priority_increase(city.population, city.hygiene_standards)
+                possible_actions.append(Action(hygienic_priority, apply_hygienic_measures(city.index)))
 
-            campaign_events = list(
-                filter(lambda event: event.get_event_type() == "campaignLaunched" and event.get_round() == round,
-                       events))
+            campaign_events = get_events_in_current_round(events, "campaignLaunched", current_round)
             if not campaign_events:
-                campaign_priority = calculate_priority_increase(city.get_population(), city.get_population_awareness())
-                possible_actions.append(Action(campaign_priority, launch_campaign(city.get_city_id())))
+                campaign_priority = calculate_priority_increase(city.population, city.population_awareness)
+                possible_actions.append(Action(campaign_priority, launch_campaign(city.index)))
 
         if possible_actions:
             possible_actions.sort(key=lambda action: action.effectiveness, reverse=True)
