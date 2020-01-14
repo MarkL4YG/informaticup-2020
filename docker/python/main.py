@@ -32,22 +32,22 @@ def process_game_end(state):
     # process end of game
     with open(f'./output/{APPROACH}_results.csv', 'a', newline='') as resultFile:
         writer = csv.writer(resultFile, delimiter=',')
-        writer.writerow([state.get_outcome(), state.get_round()])
+        writer.writerow([state.outcome, state.round])
 
 
 @post("/")
 def index():
     game_json = request.json
     state = state_from_json(game_json)
-    print(f'round: {state.get_round()}, points: {state.get_available_points()}, outcome: {state.get_outcome()}')
+    print(f'round: {state.round}, points: {state.points}, outcome: {state.outcome}')
     if "error" in game_json:
         print(game_json["error"])
-    if state.get_outcome() == 'pending':
+    if state.outcome == 'pending':
         action = process_round(state)
-        print(action.get_json())
-        log_to_file(action.get_json())
+        print(action.json)
+        log_to_file(action.json)
         log_to_file("")
-        return action.get_json()
+        return action.json
     else:
         process_game_end(state)
         return end_round()

@@ -48,7 +48,7 @@ class SimpleReward(RewardFunction):
         return math.tanh(population_score
                          + infected_score
                          + controller.previous_action_penalty
-                         - (state.get_available_points() / 1000))
+                         - (state.points / 1000))
 
 
 def sigmoid(x: float):
