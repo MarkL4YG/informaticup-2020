@@ -79,7 +79,7 @@ def _make_handler(external_env: ExternalEnv, controller_state: ControllerState, 
                       f"Round Reward: {reward}, "
                       f"Invalid-Actions: {self._controller.invalid_action_count}")
             elif state.outcome == 'loss':
-                reward -= 500 / state.get_round()
+                reward -= 500 / state.round
                 print(f"Loss, "
                       f"Round: {state.round}, "
                       f"Round Reward: {reward}, "
@@ -130,7 +130,8 @@ def _make_handler(external_env: ExternalEnv, controller_state: ControllerState, 
             self._controller.previous_population = state.get_total_population()
             self._controller.previous_infected_population = state.get_total_infected_population()
             self._controller.previous_points = state.points
-            self._controller.previous_penalty = action_penalty
+            self._controller.previous_action_penalty = action_penalty
+
             if invalid_action:
                 self._controller.invalid_action_count += 1
 
