@@ -31,26 +31,15 @@ def cost_for_airport_close(rounds):
     return 15 + (rounds * 5)
 
 
-def get_open_connections_for_city(city, current_round):
+def get_open_connections_for_city(city):
     closed_connections = list(map(lambda event: event.get_city(), filter(
-        lambda event: event.get_event_type() == "connectionClosed" and event.get_until_round() >= current_round,
+        lambda event: event.get_event_type() == "connectionClosed",
         city.get_events())))
     return list(filter(lambda connection: connection not in closed_connections, city.get_connections()))
 
 
-def is_airport_open(city, current_round):
-    active_airport_events = list(
-        filter(lambda event: event.get_event_type() == "airportClosed" and event.get_until_round() >= current_round,
-               city.get_events()))
-    if active_airport_events:
-        return False
-    else:
-        return True
-
-
 def process_round(state: GameState):
     cities = state.get_cities()
-    current_round = state.get_round()
     available_points = state.get_available_points()
     possible_actions = []
 
@@ -58,8 +47,8 @@ def process_round(state: GameState):
         priority_for_city = 0
         pathogens_in_city = city.get_pathogens()
         connected_cities = list(map(lambda connection_name: get_city_for_name(cities, connection_name),
-                                    get_open_connections_for_city(city, current_round)))
-        airport_open = is_airport_open(city, current_round)
+                                    get_open_connections_for_city(city)))
+        airport_open = not city.airport_closed
 
         for other_city in connected_cities:
             priority_for_connection = 0
