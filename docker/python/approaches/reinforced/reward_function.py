@@ -26,19 +26,10 @@ class SimpleReward(RewardFunction):
         m_eps = np.finfo(np.float32).eps  # prevent division over 0. everywhere - although improbable. you never know.
         d_eps = 1  # discrete epsilon for everything with populations
         population = state.get_total_population()
-        population_ratio = population / (controller.previous_population + d_eps)
-        population_score = math.log(population_ratio)
+        population_ratio = population / controller.previous_population
+        population_score = math.log(population_ratio * state.round)
 
-        infected_population = state.get_total_infected_population()
-
-        infected_delta = controller.previous_infected_population - infected_population
-        approx_dead_inf = int(controller.previous_infected_population / population_ratio) \
-                          - controller.previous_infected_population
-        pessimistic_weighting = 1
-        if infected_delta > 0 and approx_dead_inf >= 0:  # therefore, less ill than before
-            no_longer_infected = infected_delta
-            # 1 - (cured-but-unfortunately-also-very-dead-ratio)
-            pessimistic_weighting = 1 - (approx_dead_inf / no_longer_infected)
+        return math.tanh(population_score + controller.previous_penalty - state.points)
 
         # gt 1 => less infected this round than in previous.
         infected_population_ratio = controller.previous_infected_population / (infected_population + d_eps)
@@ -48,7 +39,7 @@ class SimpleReward(RewardFunction):
         return math.tanh(population_score
                          + infected_score
                          + controller.previous_action_penalty
-                         - (state.get_available_points() / 1000))
+                         - (state.points / 1000))
 
 
 def sigmoid(x: float):

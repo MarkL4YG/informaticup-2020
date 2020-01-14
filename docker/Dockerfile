@@ -1,10 +1,10 @@
-FROM python:3
+FROM python:3.6
 
 WORKDIR /usr/src/app
 
 COPY python/ ./
 
-RUN pip install --no-cache-dir -r ./requirements.txt
+RUN python3 -m pip install --no-cache-dir -r ./requirements.txt
 
 COPY python ./
 RUN mkdir -p /usr/src/app/output

@@ -72,16 +72,16 @@ def _make_handler(external_env: ExternalEnv, controller_state: ControllerState, 
 
         def log_reward(self, state: GameState):
             reward = SimpleReward().calculate_reward(state, controller_state)
-            if state.get_outcome() == 'win':
-                reward += 500 / state.get_round()
+            if state.outcome == 'win':
+                reward += 500 / state.round
                 print(f"Win, "
-                      f"Round: {state.get_round()}, "
+                      f"Round: {state.round}, "
                       f"Round Reward: {reward}, "
                       f"Invalid-Actions: {self._controller.invalid_action_count}")
-            elif state.get_outcome() == 'loss':
+            elif state.outcome == 'loss':
                 reward -= 500 / state.get_round()
                 print(f"Loss, "
-                      f"Round: {state.get_round()}, "
+                      f"Round: {state.round}, "
                       f"Round Reward: {reward}, "
                       f"Invalid-Actions: {self._controller.invalid_action_count}")
             external_env.log_returns(self._controller.eid, reward)
@@ -99,28 +99,28 @@ def _make_handler(external_env: ExternalEnv, controller_state: ControllerState, 
                 self._controller.is_first_round = False
 
         def handle_round_outcome(self, state: GameState):
-            if state.get_outcome() == 'pending':
+            if state.outcome == 'pending':
                 action, action_penalty = external_env.get_action(self._controller.eid, state)
                 if action == INVALID_ACTION:
                     action = actions.end_round()
                 self.update_controller(state, action_penalty, action == INVALID_ACTION)
-                print(action.get_json())
-                return action.get_json()
+                print(action.json)
+                return action.json
 
-            elif state.get_outcome() == 'loss':
+            elif state.outcome == 'loss':
                 external_env.end_episode(self._controller.eid, state)
                 self._controller.new_eid()
                 self._controller.is_first_round = True
                 return END_EPISODE_RESPONSE
 
-            elif state.get_outcome() == 'win':
+            elif state.outcome == 'win':
                 external_env.end_episode(self._controller.eid, state)
                 self._controller.new_eid()
                 self._controller.is_first_round = True
                 return END_EPISODE_RESPONSE
 
             else:
-                raise Exception(f"Unknown outcome: {state.get_outcome()}")
+                raise Exception(f"Unknown outcome: {state.outcome}")
 
         def init_controller(self, state: GameState):
             self.update_controller(state)
@@ -129,8 +129,8 @@ def _make_handler(external_env: ExternalEnv, controller_state: ControllerState, 
         def update_controller(self, state: GameState, action_penalty: float = 0, invalid_action=False):
             self._controller.previous_population = state.get_total_population()
             self._controller.previous_infected_population = state.get_total_infected_population()
-            self._controller.previous_points = state.get_available_points()
-            self._controller.previous_action_penalty = action_penalty
+            self._controller.previous_points = state.points
+            self._controller.previous_penalty = action_penalty
             if invalid_action:
                 self._controller.invalid_action_count += 1
 
