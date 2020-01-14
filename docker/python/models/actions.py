@@ -1,6 +1,5 @@
 import collections
 
-from approaches.reinforced.util import timer
 from models.city import get_city_name, get_city_id
 from models.gamestate import GameState
 from models.pathogen import get_pathogen_name
@@ -132,7 +131,6 @@ def flatten(x):
         return [x]
 
 
-@timer
 def generate_possible_actions(game_state: GameState):
     actions = [end_round()]
     available_points = game_state.points
