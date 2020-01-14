@@ -22,6 +22,13 @@ if __name__ == "__main__":
     trainer = PPOTrainer(
         env="ic20env",
         config=merge_dicts(DEFAULT_CONFIG, {
+            # -- Rollout-Worker
+            'num_gpus': 0,
+            'num_workers': 0,
+            "num_cpus_per_worker": 1,
+            "num_gpus_per_worker": 0,
+            "num_envs_per_worker": 1,
+
             # -- Specific parameters
             "use_gae": True,
             "kl_coeff": 0.2,

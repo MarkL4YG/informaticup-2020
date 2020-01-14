@@ -32,7 +32,7 @@ def cost_for_airport_close(rounds):
 
 
 def get_open_connections_for_city(city):
-    closed_connections = list(map(lambda event: event.get_city(), filter(
+    closed_connections = list(map(lambda event: event.city, filter(
         lambda event: event.get_event_type() == "connectionClosed",
         city.get_events())))
     return list(filter(lambda connection: connection not in closed_connections, city.get_connections()))

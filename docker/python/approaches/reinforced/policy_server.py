@@ -55,6 +55,8 @@ def _make_handler(external_env: ExternalEnv, controller_state: ControllerState, 
                     self.end_headers()
                     self.wfile.write(json.dumps(response).encode('utf-8'))
             except Exception as e:
+                print(e)
+                print(traceback.format_exc())
                 self.send_error(500, traceback.format_exc())
 
         def handle_game(self, game_json: dict):

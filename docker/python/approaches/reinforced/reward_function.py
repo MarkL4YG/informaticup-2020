@@ -38,7 +38,7 @@ class SimpleReward(RewardFunction):
         if infected_delta > 0 and approx_dead_inf >= 0:  # therefore, less ill than before
             no_longer_infected = infected_delta
             # 1 - (cured-but-unfortunately-also-very-dead-ratio)
-            pessimistic_weighting = 1 - (approx_dead_inf / no_longer_infected)
+            pessimistic_weighting = np.max([1 - (approx_dead_inf / no_longer_infected), 0])
 
         # gt 1 => less infected this round than in previous.
         infected_population_ratio = controller.previous_infected_population / (infected_population + d_eps)

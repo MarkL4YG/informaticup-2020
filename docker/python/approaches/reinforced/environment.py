@@ -76,7 +76,7 @@ class SimplifiedIC20Environment(ExternalEnv):
         mapped_action, penalty = self.act_space_processor.map_action(action, observation)
         trial_count = 0
         while (mapped_action == INVALID_ACTION or mapped_action.cost > observation.points) \
-                or mapped_action not in actions.generate_possible_actions_parallelized(observation):
+                or mapped_action not in actions.generate_possible_actions(observation):
             action = self._wait_for_action(preprocessed_observation, episode)
             mapped_action, penalty = self.act_space_processor.map_action(action, observation)
 

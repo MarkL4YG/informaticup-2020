@@ -85,7 +85,7 @@ class SimpleActStateProcessor(ActionStateProcessor):
                    2: actions.apply_hygienic_measures(city_id),
                    3: actions.exert_political_influence(city_id),
                    4: actions.call_for_elections(city_id),
-                   6: actions.launch_campaign(city_id)}
+                   5: actions.launch_campaign(city_id)}
         basic_options_len = len(options)
 
         if action < basic_options_len:
@@ -157,7 +157,7 @@ class SimpleActStateProcessor(ActionStateProcessor):
 
     @classmethod
     def penalize_action(cls, action: Action, game_state: GameState) -> Tuple[Optional[Action], float]:
-        if action in actions.generate_possible_actions_parallelized(game_state):
+        if action in actions.generate_possible_actions(game_state):
             if action == INVALID_ACTION:
                 penalty = -1
                 return action, penalty
