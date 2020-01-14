@@ -54,7 +54,7 @@ def _make_handler(external_env: ExternalEnv, controller_state: ControllerState, 
                     self.send_response(200)
                     self.end_headers()
                     self.wfile.write(json.dumps(response).encode('utf-8'))
-            except Exception:
+            except Exception as e:
                 self.send_error(500, traceback.format_exc())
 
         def handle_game(self, game_json: dict):
@@ -73,13 +73,13 @@ def _make_handler(external_env: ExternalEnv, controller_state: ControllerState, 
         def log_reward(self, state: GameState):
             reward = SimpleReward().calculate_reward(state, controller_state)
             if state.get_outcome() == 'win':
-                reward += 100 / state.get_round()
+                reward += 500 / state.get_round()
                 print(f"Win, "
                       f"Round: {state.get_round()}, "
                       f"Round Reward: {reward}, "
                       f"Invalid-Actions: {self._controller.invalid_action_count}")
             elif state.get_outcome() == 'loss':
-                reward -= 100 / state.get_round()
+                reward -= 500 / state.get_round()
                 print(f"Loss, "
                       f"Round: {state.get_round()}, "
                       f"Round Reward: {reward}, "
@@ -130,7 +130,7 @@ def _make_handler(external_env: ExternalEnv, controller_state: ControllerState, 
             self._controller.previous_population = state.get_total_population()
             self._controller.previous_infected_population = state.get_total_infected_population()
             self._controller.previous_points = state.get_available_points()
-            self._controller.previous_penalty = action_penalty
+            self._controller.previous_action_penalty = action_penalty
             if invalid_action:
                 self._controller.invalid_action_count += 1
 
