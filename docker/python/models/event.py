@@ -19,7 +19,6 @@ known_event_types = [
     # Global events
     "pathogenEncountered",
     "vaccineInDevelopment",
-    "medicationInDevelopment",
     "vaccineAvailable",
     "medicationAvailable"
 ]
@@ -31,6 +30,7 @@ class Event:
         self.event_type: str = None
         self.since_round: int = 0
         self.until_round: int = 0
+        self.round: int = 0
         self.pathogen: Pathogen = None
         self.prevalence: float = 0.0
         self.participants: int = 0
@@ -52,6 +52,9 @@ class Event:
 
         if 'untilRound' in event_json:
             event.until_round = int(event_json['untilRound'])
+
+        if 'round' in event_json:
+            event.round = int(event_json['round'])
 
         if 'pathogen' in event_json:
             event.pathogen = Pathogen.from_json(event_json['pathogen'])

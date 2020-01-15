@@ -34,7 +34,7 @@ def process_round(state: GameState):
                                                            events)))
                     outbreaks = list(filter(lambda event: event.event_type == "outbreak", events))
                     outbreaks = list(
-                        filter(lambda outbreak_event: outbreak_event.event in pathogens_with_vaccine,
+                        filter(lambda outbreak_event: outbreak_event.pathogen in pathogens_with_vaccine,
                                outbreaks))
                     outbreaks = list(
                         filter(lambda outbreak_event: outbreak_event.pathogen not in vaccinated_pathogens,
@@ -46,7 +46,7 @@ def process_round(state: GameState):
                     outbreaks_to_vaccinate.sort(key=outbreak_priority, reverse=True)
                     outbreak_to_vaccinate = outbreaks_to_vaccinate[0]
                     return deploy_vaccine(outbreak_to_vaccinate[1].pathogen.index,
-                                          outbreak_to_vaccinate[0].city_id)
+                                          outbreak_to_vaccinate[0].index)
                 else:
                     return end_round()
             else:
