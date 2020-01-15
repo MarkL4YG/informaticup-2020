@@ -12,35 +12,30 @@ from approaches.reinforced.constants import DEFAULT_CONFIG
 from approaches.reinforced.environment import SimplifiedIC20Environment, CHECKPOINT_FILE
 from approaches.reinforced.observation_state_processor import SimpleObsStateProcessor, prevalence_pathogen_sorting
 
+# minimal example runs. try with 5 rollout workers.
+from approaches.reinforced.reward_function import UnstableReward
+
 if __name__ == "__main__":
-    ray.init(address=None)  # address = None when running locally. address = 'auto' when running on aws.]
+    ray.init(address='auto')  # address = None when running locally. address = 'auto' when running on aws.]
     obs_state_processor = SimpleObsStateProcessor(pathogen_sorting_strategy=prevalence_pathogen_sorting)
     act_state_processor = SimpleActStateProcessor(sort_pathogens=obs_state_processor.sort_pathogens)
 
     # Notice that trial_max will only work for stochastic policies
-    register_env("ic20env", lambda _: SimplifiedIC20Environment(obs_state_processor, act_state_processor, trial_max=10))
+    register_env("ic20env",
+                 lambda _: SimplifiedIC20Environment(obs_state_processor, act_state_processor, UnstableReward(),
+                                                     trial_max=10))
+    ten_gig = 10737418240
 
     trainer = A2CTrainer(
         env="ic20env",
         config=merge_dicts(DEFAULT_CONFIG, {
             # -- Specific parameters
-            # GAE(gamma) parameter
-            'lambda': 1.0,
-            # Max global norm for each worker gradient
-            'grad_clip': 40.0,
-            'lr': 0.0001,
-            'lr_schedule': [[0, 0.0007], [20000000, 0.000000000001]],
-            'vf_loss_coeff': 0.5,
-            'entropy_coeff': 0.01,
-            'microbatch_size': None,
-            # MDP
+            'num_gpus': 1,
+            'num_workers': 10,
+            "num_envs_per_worker": 1,
+            "num_cpus_per_worker": 1,
+            "memory_per_worker": ten_gig,
             'gamma': 0.99,
-            "clip_rewards": True,  # a2c_std: True
-
-            # -- Batches
-            "sample_batch_size": 200,  # a2c_std: 20
-            "train_batch_size": 400,
-            'batch_mode': 'complete_episodes',
         }))
 
     # Attempt to restore from checkpoint if possible.
