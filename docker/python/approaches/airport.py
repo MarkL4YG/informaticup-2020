@@ -59,7 +59,7 @@ def process_round(state: GameState):
 
             # the closing of a connection, unlike the closing of an airport, is not bidirectional
             rounds = 1
-            while available_points >= cost_for_connection_close(rounds):
+            while available_points >= cost_for_connection_close(rounds) and rounds <= 6:
                 effectiveness = priority_for_connection * rounds / cost_for_connection_close(rounds)
                 action = close_airway(city.index, other_city.index, rounds)
                 possible_actions.append(Action(effectiveness, action))
