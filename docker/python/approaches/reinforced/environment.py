@@ -8,6 +8,7 @@ from approaches.reinforced.action_state_processor import ActionStateProcessor
 from approaches.reinforced.constants import INVALID_ACTION, INVALID_ACTION_PENALTY
 from approaches.reinforced.observation_state_processor import ObservationStateProcessor
 from approaches.reinforced.policy_server import PolicyServer
+from approaches.reinforced.reward_function import RewardFunction
 from approaches.reinforced.util import get_available_port
 from models import actions
 from models.actions import Action
@@ -24,10 +25,11 @@ class SimplifiedIC20Environment(ExternalEnv):
     """
 
     def __init__(self, obs_space_processor: ObservationStateProcessor,
-                 act_space_processor: ActionStateProcessor, trial_max: int = 0):
+                 act_space_processor: ActionStateProcessor, reward_function: RewardFunction, trial_max: int = 0):
         self.trial_max = trial_max
         self.obs_space_processor = obs_space_processor
         self.act_space_processor = act_space_processor
+        self.reward_function = reward_function
 
         action_space = act_space_processor.generate_action_space()
         obs_space = obs_space_processor.generate_observation_space()

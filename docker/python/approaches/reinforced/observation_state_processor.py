@@ -194,6 +194,11 @@ class SimpleObsStateProcessor(ObservationStateProcessor):
         return total_infected_population
 
 
+class PrevalenceObsStateProcessor(SimpleObsStateProcessor):
+    # todo?
+    pass
+
+
 def prevalence_pathogen_sorting(city: City, pathogen: Pathogen) -> float:
     city_pathogen_ids = list(map(lambda city_pathogen: city_pathogen.index, city.pathogens))
     if pathogen.index in city_pathogen_ids:

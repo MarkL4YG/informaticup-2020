@@ -9,7 +9,6 @@ from ray.rllib.utils.annotations import PublicAPI
 
 from approaches.reinforced.constants import END_EPISODE_RESPONSE, PATH_TO_IC20, INVALID_ACTION
 from approaches.reinforced.controller_state import ControllerState
-from approaches.reinforced.reward_function import SimpleReward
 from models import actions
 from models.gamestate import state_from_json, GameState
 
@@ -73,14 +72,12 @@ def _make_handler(external_env: ExternalEnv, controller_state: ControllerState, 
             return self.handle_round_outcome(state)
 
         def log_reward(self, state: GameState):
-            reward = SimpleReward().calculate_reward(state, controller_state)
+            reward = external_env.reward_function.calculate_reward(state, controller_state)
             info = None
             if state.outcome == 'win':
                 info = {'outcome': 'win', 'rounds_played': state.round,
                         'invalid_actions_taken': self._controller.invalid_action_count}
-                reward += 500 / state.round
             elif state.outcome == 'loss':
-                reward -= 500 / state.round
                 info = {'outcome': 'loss', 'rounds_played': state.round,
                         'invalid_actions_taken': self._controller.invalid_action_count}
 
