@@ -8,10 +8,12 @@ print("Spawning endpoint.")
 sPort = int(os.getenv("SERVER_PORT", "50123"))
 sICTestApp = os.getenv("IC20_LOCATION", "./ic20_windows.exe")
 runCount = 0
-proc = subprocess.Popen(["/usr/bin/env", "python3", "./main.py"])
-
-print("Waiting so Tensorflow has time to start up - if selected.")
-time.sleep(10)
+print("Waiting for the pandemic player to come online.")
+proc = subprocess.Popen(["/usr/bin/env", "python3", "./main.py"], stdout=subprocess.PIPE)
+for startupLine in proc.stdout:
+    if "Pandemic-Player listening to" in startupLine.decode("UTF-8"):
+        break
+time.sleep(2)
 
 nullPipe = open(os.devnull, "w")
 
