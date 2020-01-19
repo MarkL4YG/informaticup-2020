@@ -1,0 +1,15 @@
+{
+  "callbacks": {
+    "on_episode_end": "<function on_episode_end at 0x7f3770cd10d0>"
+  },
+  "eager": false,
+  "gamma": 0.99,
+  "lambda": 0.95,
+  "log_level": "WARN",
+  "memory_per_worker": 10737418240,
+  "num_cpus_per_worker": 1,
+  "num_envs_per_worker": 1,
+  "num_gpus": 1,
+  "num_workers": 10,
+  "seed": null
+}

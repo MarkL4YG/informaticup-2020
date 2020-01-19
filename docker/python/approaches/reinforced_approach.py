@@ -5,10 +5,9 @@ from ray.tune import register_env
 from approaches.approach import Approach
 from approaches.reinforced.action_state_processor import SimpleActStateProcessor
 from approaches.reinforced.constants import INVALID_ACTION
-from approaches.reinforced.environment import SimplifiedIC20Environment
+from approaches.reinforced.inference_environment import InferenceIC20Environment
 from approaches.reinforced.observation_state_processor import SimpleObsStateProcessor, \
     infected_population_sorting_per_city
-from approaches.reinforced.reward_function import StableReward
 from models import actions
 from models.actions import Action
 from models.gamestate import GameState
@@ -22,8 +21,7 @@ class ReinforcedApproach(Approach):
             ray.init()
         self.obs_state_processor = SimpleObsStateProcessor(infected_population_sorting_per_city)
         self.act_state_processor = SimpleActStateProcessor(sort_pathogens=self.obs_state_processor.sort_pathogens)
-        register_env("ic20env", lambda _: SimplifiedIC20Environment(self.obs_state_processor, self.act_state_processor,
-                                                                    StableReward(), trial_max=10))
+        register_env("ic20env", lambda _: InferenceIC20Environment(self.obs_state_processor, self.act_state_processor))
 
         self.trainer = self._load_trainer(trainer(env="ic20env"), weights)
 
