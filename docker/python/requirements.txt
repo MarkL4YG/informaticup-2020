@@ -3,3 +3,5 @@ numpy
 bottle>=0.12.18
 ray>=0.8.0
 boto3
+pytest
+hypothesis
