@@ -40,7 +40,7 @@ Environment variables work for both the command line and the docker image, when 
 * ``ml_ppo`` -> Proximal Policy Optimization-Agent  
   
 ### 2.2 Running via. Docker (Preferred)
-The Docker image ``markl4yg/informaticup-2020:latest`` can be used to spin up a standalone server that will answer requests from the ``ic20`` test application on ``http://<container-address>:<server-port>/``.  
+The Docker image [``markl4yg/informaticup-2020:latest``](https://hub.docker.com/repository/docker/markl4yg/informaticup-2020) can be used to spin up a standalone server that will answer requests from the ``ic20`` test application on ``http://<container-address>:<server-port>/``.  
   
 Building the image can be performed from ``<repository>/docker`` by running ``docker build . --file Dockerfile --tag markl4yg/informaticup-2020:latest``. However, this will not be required when the docker hub registry is available.
 
