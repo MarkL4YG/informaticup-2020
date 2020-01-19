@@ -11,6 +11,8 @@ runCount = 0
 proc = subprocess.Popen(["/usr/bin/env", "python3", "./main.py"])
 time.sleep(2)
 
+nullPipe = open(os.devnull, "w")
+
 while True:
     currentSeed: str = seedSource.readline()
     currentSeed = currentSeed.strip('\n\r ')
@@ -19,7 +21,10 @@ while True:
 
     runCount += 1
     print(f'Run {runCount} with seed {currentSeed} against port {sPort}')
-    icProc = subprocess.Popen([sICTestApp, '-s', currentSeed, '-u', "http://localhost:" + str(sPort) + "/"])
+    icProc = subprocess.Popen(
+        args=[sICTestApp, '-s', currentSeed, '-u', "http://localhost:" + str(sPort) + "/"],
+        stdout=nullPipe
+    )
     icProc.wait()
     if icProc.returncode != 0:
         print(f'Execution failed.')
@@ -27,3 +32,4 @@ while True:
         exit(1)
 
 proc.kill()
+nullPipe.close()
