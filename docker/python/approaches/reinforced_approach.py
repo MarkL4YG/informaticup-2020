@@ -46,7 +46,6 @@ class ReinforcedApproach(Approach):
         return mapped_action
 
     @classmethod
-    def _load_trainer(cls, trainer: Trainer, weights: str) -> Trainer:
-        checkpoint_path = open(weights).read()
-        trainer.restore(checkpoint_path)
+    def _load_trainer(cls, trainer: Trainer, weights_path: str) -> Trainer:
+        trainer.restore(weights_path)
         return trainer
