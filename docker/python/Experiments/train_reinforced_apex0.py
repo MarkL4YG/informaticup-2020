@@ -9,16 +9,19 @@ from ray.tune.util import merge_dicts
 from approaches.reinforced.action_state_processor import SimpleActStateProcessor
 from approaches.reinforced.constants import DEFAULT_CONFIG
 from approaches.reinforced.environment import SimplifiedIC20Environment, CHECKPOINT_FILE
-from approaches.reinforced.observation_state_processor import SimpleObsStateProcessor, prevalence_pathogen_sorting
+from approaches.reinforced.observation_state_processor import SimpleObsStateProcessor, infected_population_sorting_per_city
 # Note: Didn't acquire worker nodes and ran into oom. Didnt produce reasonable output either.
+from approaches.reinforced.reward_function import UnstableReward
 
 if __name__ == "__main__":
     ray.init(address='auto')  # address = None when running locally. address = 'auto' when running on aws.]
-    obs_state_processor = SimpleObsStateProcessor(pathogen_sorting_strategy=prevalence_pathogen_sorting)
+    obs_state_processor = SimpleObsStateProcessor(pathogen_sorting_strategy=infected_population_sorting_per_city)
     act_state_processor = SimpleActStateProcessor(sort_pathogens=obs_state_processor.sort_pathogens)
 
     # Notice that trial_max will only work for stochastic policies
-    register_env('ic20env', lambda _: SimplifiedIC20Environment(obs_state_processor, act_state_processor, UnstableReward(), trial_max=10))
+    register_env('ic20env',
+                 lambda _: SimplifiedIC20Environment(obs_state_processor, act_state_processor, UnstableReward(),
+                                                     trial_max=10))
     ten_gig = 10737418240
 
     trainer = ApexTrainer(
