@@ -8,7 +8,7 @@ from approaches.approach import Approach
 from models.actions import end_round
 from models.gamestate import state_from_json, GameState
 
-APPROACH = os.getenv('APPROACH', 'random_approach')
+APPROACH = os.getenv('APPROACH', 'combined.combined_city_stats_and_vaccine_random')
 LOG_FILE = f'./output/{APPROACH}_log.txt'
 
 
