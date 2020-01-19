@@ -26,7 +26,7 @@ while True:
     runCount += 1
     print(f'Run {runCount} with seed {currentSeed} against port {sPort}')
     icProc = subprocess.Popen(
-        args=[sICTestApp, '-s', currentSeed, '-u', "http://localhost:" + str(sPort) + "/"],
+        args=[sICTestApp, '-s', currentSeed, '-u', "http://localhost:" + str(sPort) + "/", "-t", "0"],
         stdout=nullPipe
     )
     icProc.wait()
