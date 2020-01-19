@@ -22,12 +22,18 @@ class Action:
     def __ne__(self, other):
         return not self.__eq__(other)
 
+    def __str__(self):
+        return self.json
+
+    def __repr__(self):
+        return f"<Action({self.json, self.cost})>"
+
 
 def end_round() -> Action:
     return Action({"type": "endRound"}, 0)
 
 
-def quarantine_city(city_id, number_of_rounds=1) -> Action:
+def quarantine_city(city_id: int, number_of_rounds=1) -> Action:
     city_name = get_city_name(city_id)
     return Action({
         "type": "putUnderQuarantine",
@@ -36,7 +42,7 @@ def quarantine_city(city_id, number_of_rounds=1) -> Action:
     }, 20 + 10 * number_of_rounds)
 
 
-def close_airport(city_id, number_of_rounds=1) -> Action:
+def close_airport(city_id: int, number_of_rounds=1) -> Action:
     city_name = get_city_name(city_id)
     return Action({
         "type": "closeAirport",
@@ -45,7 +51,7 @@ def close_airport(city_id, number_of_rounds=1) -> Action:
     }, 15 + 5 * number_of_rounds)
 
 
-def close_airway(from_city_id, to_city_id, number_of_rounds=1) -> Action:
+def close_airway(from_city_id, to_city_id: int, number_of_rounds=1) -> Action:
     from_city_name = get_city_name(from_city_id)
     to_city_name = get_city_name(to_city_id)
     return Action({
@@ -56,7 +62,7 @@ def close_airway(from_city_id, to_city_id, number_of_rounds=1) -> Action:
     }, 3 + 3 * number_of_rounds)
 
 
-def develop_vaccine(pathogen_id) -> Action:
+def develop_vaccine(pathogen_id: int) -> Action:
     pathogen_name = get_pathogen_name(pathogen_id)
     return Action({
         "type": "developVaccine",
@@ -64,7 +70,7 @@ def develop_vaccine(pathogen_id) -> Action:
     }, 40)
 
 
-def deploy_vaccine(pathogen_id, city_id) -> Action:
+def deploy_vaccine(pathogen_id: int, city_id: int) -> Action:
     pathogen_name = get_pathogen_name(pathogen_id)
     city_name = get_city_name(city_id)
     return Action({
@@ -74,7 +80,7 @@ def deploy_vaccine(pathogen_id, city_id) -> Action:
     }, 5)
 
 
-def develop_medication(pathogen_id) -> Action:
+def develop_medication(pathogen_id: int) -> Action:
     pathogen_name = get_pathogen_name(pathogen_id)
     return Action({
         "type": "developMedication",
@@ -82,7 +88,7 @@ def develop_medication(pathogen_id) -> Action:
     }, 20)
 
 
-def deploy_medication(pathogen_id, city_id) -> Action:
+def deploy_medication(pathogen_id: int, city_id: int) -> Action:
     pathogen_name = get_pathogen_name(pathogen_id)
     city_name = get_city_name(city_id)
     return Action({
@@ -92,7 +98,7 @@ def deploy_medication(pathogen_id, city_id) -> Action:
     }, 10)
 
 
-def exert_political_influence(city_id) -> Action:
+def exert_political_influence(city_id: int) -> Action:
     city_name = get_city_name(city_id)
     return Action({
         "type": "exertInfluence",
@@ -100,7 +106,7 @@ def exert_political_influence(city_id) -> Action:
     }, 3)
 
 
-def call_for_elections(city_id) -> Action:
+def call_for_elections(city_id: int) -> Action:
     city_name = get_city_name(city_id)
     return Action({
         "type": "callElections",
@@ -108,7 +114,7 @@ def call_for_elections(city_id) -> Action:
     }, 3)
 
 
-def apply_hygienic_measures(city_id) -> Action:
+def apply_hygienic_measures(city_id: int) -> Action:
     city_name = get_city_name(city_id)
     return Action({
         "type": "applyHygienicMeasures",
@@ -116,7 +122,7 @@ def apply_hygienic_measures(city_id) -> Action:
     }, 3)
 
 
-def launch_campaign(city_id) -> Action:
+def launch_campaign(city_id: int) -> Action:
     city_name = get_city_name(city_id)
     return Action({
         "type": "launchCampaign",
