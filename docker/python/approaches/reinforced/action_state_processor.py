@@ -122,12 +122,12 @@ class SimpleActStateProcessor(ActionStateProcessor):
         return ordered_city_pathogens_with_vaccine
 
     @classmethod
-    def _generate_city_med_actions(cls, city, ordered_available_pathogens: List[Pathogen],
+    def _generate_city_med_actions(cls, city: City, ordered_available_pathogens: List[Pathogen],
                                    pathogens_with_medication: List[Pathogen]):
-        city_pathogens_with_medication = filter(lambda city_pathogen:
-                                                city_pathogen in pathogens_with_medication,
-                                                city.pathogens)
-        ordered_city_pathogens_with_medication = [actions.deploy_vaccine(pathogen.index, city.index)
+        city_pathogens_with_medication = list(filter(lambda city_pathogen:
+                                                     city_pathogen in pathogens_with_medication,
+                                                     city.pathogens))
+        ordered_city_pathogens_with_medication = [actions.deploy_medication(pathogen.index, city.index)
                                                   if pathogen in city_pathogens_with_medication
                                                   else INVALID_ACTION
                                                   for pathogen in ordered_available_pathogens]
