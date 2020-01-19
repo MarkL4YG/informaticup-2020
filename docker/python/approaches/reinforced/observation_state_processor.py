@@ -134,10 +134,10 @@ class SimpleObsStateProcessor(ObservationStateProcessor):
     @classmethod
     def _map_pathogen_status(cls, pathogen: Pathogen, game_state: GameState):
         pathogen_exists = lambda: pathogen in game_state.pathogens
-        medication_in_development = lambda: game_state.pathogens_with_medication_in_development
-        vaccination_in_development = lambda: game_state.pathogens_with_vaccination_in_development
-        medication_exists = lambda: game_state.pathogens_with_medication
-        vaccination_exists = lambda: game_state.pathogens_with_vaccination
+        medication_in_development = lambda: pathogen in game_state.pathogens_with_medication_in_development
+        vaccination_in_development = lambda: pathogen in game_state.pathogens_with_vaccination_in_development
+        medication_exists = lambda: pathogen in game_state.pathogens_with_medication
+        vaccination_exists = lambda: pathogen in game_state.pathogens_with_vaccination
 
         if medication_exists() and vaccination_exists():
             pathogen_status = 8
