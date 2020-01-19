@@ -61,6 +61,12 @@ class Pathogen:
     def __ne__(self, other):
         return not self.__eq__(other)
 
+    def __str__(self):
+        return f'{self.name}, index: {self.index}'
+
+    def __repr__(self):
+        return f"<{self.__class__}({self.name})>"
+
     @staticmethod
     def from_json(pathogen_json):
         pathogen = Pathogen(pathogen_json['name'])
