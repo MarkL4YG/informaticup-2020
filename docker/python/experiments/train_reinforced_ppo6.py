@@ -11,7 +11,7 @@ from approaches.reinforced.constants import DEFAULT_CONFIG
 from approaches.reinforced.environment import SimplifiedIC20Environment, CHECKPOINT_FILE
 from approaches.reinforced.observation_state_processor import SimpleObsStateProcessor, \
     infected_population_sorting_per_city
-from approaches.reinforced.reward_function import SparseReward
+from approaches.reinforced.reward_function import StableReward
 
 if __name__ == "__main__":
     ray.init(address='auto')  # address = None when running locally. address = 'auto' when running on aws.]
@@ -20,7 +20,7 @@ if __name__ == "__main__":
 
     # Notice that trial_max will only work for stochastic policies
     register_env("ic20env",
-                 lambda _: SimplifiedIC20Environment(obs_state_processor, act_state_processor, SparseReward(),
+                 lambda _: SimplifiedIC20Environment(obs_state_processor, act_state_processor, StableReward(),
                                                      trial_max=10))
     ten_gig = 10737418240
 
@@ -34,7 +34,7 @@ if __name__ == "__main__":
             "num_cpus_per_worker": 1,
             "memory_per_worker": ten_gig,
             'gamma': 0.99,
-            'gae': 0.95
+            'lambda': 0.95
         }))
 
     # Attempt to restore from checkpoint if possible.

@@ -1,7 +1,7 @@
 import os
 
 import ray
-from ray.rllib.agents.a3c import A2CTrainer
+from ray.rllib.agents.ppo import PPOTrainer
 from ray.tune import register_env
 from ray.tune.logger import pretty_print
 from ray.tune.util import merge_dicts
@@ -11,9 +11,7 @@ from approaches.reinforced.constants import DEFAULT_CONFIG
 from approaches.reinforced.environment import SimplifiedIC20Environment, CHECKPOINT_FILE
 from approaches.reinforced.observation_state_processor import SimpleObsStateProcessor, \
     infected_population_sorting_per_city
-from approaches.reinforced.reward_function import StableReward
-
-# => the object store memory exceeded.
+from approaches.reinforced.reward_function import SparseReward
 
 if __name__ == "__main__":
     ray.init(address='auto')  # address = None when running locally. address = 'auto' when running on aws.]
@@ -22,14 +20,14 @@ if __name__ == "__main__":
 
     # Notice that trial_max will only work for stochastic policies
     register_env("ic20env",
-                 lambda _: SimplifiedIC20Environment(obs_state_processor, act_state_processor, StableReward(),
+                 lambda _: SimplifiedIC20Environment(obs_state_processor, act_state_processor, SparseReward(),
                                                      trial_max=10))
     ten_gig = 10737418240
 
-    trainer = A2CTrainer(
+    trainer = PPOTrainer(
         env="ic20env",
         config=merge_dicts(DEFAULT_CONFIG, {
-            # -- Specific parameters
+            # -- Rollout-Worker
             'num_gpus': 1,
             'num_workers': 10,
             "num_envs_per_worker": 1,
