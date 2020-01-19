@@ -38,7 +38,9 @@ Environment variables work for both the command line and the docker image, when 
   * ``combined.combined_random``  
 * ``ml_a2c`` -> Advantage Actor Critic-Agent  
 * ``ml_ppo`` -> Proximal Policy Optimization-Agent  
-  
+
+__Note: Both the ``ml_a2c`` and the ``ml_ppo`` approaches ___require___ manipulation of the IC20 default request timeout. For tests, the timeout was completely disabled.__  
+
 ### 2.2 Running via. Docker (Preferred)
 The Docker image [``markl4yg/informaticup-2020:latest``](https://hub.docker.com/repository/docker/markl4yg/informaticup-2020) can be used to spin up a standalone server that will answer requests from the ``ic20`` test application on ``http://<container-address>:<server-port>/``.  
   
