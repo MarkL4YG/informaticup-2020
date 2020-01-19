@@ -94,9 +94,9 @@ class StableReward(RewardFunction):
 
         reward = population_score + infected_score + controller.previous_action_penalty - (state.points / 1000)
         if state.outcome == 'win':
-            reward += 500 / state.round
+            reward += smooth_sigmoid(500 / state.round)
         elif state.outcome == 'loss':
-            reward -= 500 / state.round
+            reward -= smooth_sigmoid(500 / state.round)
 
         return math.tanh(reward / 5) * 10
 
@@ -120,3 +120,11 @@ def sigmoid(x: float):
     else:
         x_exp = math.exp(x)
         return x_exp / (1 + x_exp)
+
+
+def smooth_sigmoid(x: float) -> float:
+    if x >= 0:
+        return 10 / (1 + 10 * math.exp(-x / 5))
+    else:
+        x_exp = math.exp(x / 5)
+        return 10 * x_exp / (10 + x_exp)
