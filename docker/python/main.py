@@ -4,10 +4,11 @@ import os
 
 from bottle import post, request, run, BaseRequest
 
+from approaches.approach import Approach
 from models.actions import end_round
-from models.gamestate import state_from_json
+from models.gamestate import state_from_json, GameState
 
-APPROACH = os.getenv('APPROACH', 'random')
+APPROACH = os.getenv('APPROACH', 'random_approach')
 LOG_FILE = f'./output/{APPROACH}_log.txt'
 
 
@@ -23,13 +24,14 @@ def clear_log_file():
             f.write("")
 
 
-def process_round(state):
-    approach = importlib.import_module(f'approaches.{APPROACH}')
+def process_round(state: GameState):
     return approach.process_round(state)
 
 
 def process_game_end(state):
     # process end of game
+    if not os.path.exists('./output'):
+        os.mkdir('./output')
     with open(f'./output/{APPROACH}_results.csv', 'a', newline='') as resultFile:
         writer = csv.writer(resultFile, delimiter=',')
         writer.writerow([state.outcome, state.round])
@@ -55,6 +57,8 @@ def index():
 
 clear_log_file()
 
+SelectedApproach = getattr(importlib.import_module(f"approaches.{APPROACH}"), APPROACH)
+approach: Approach = SelectedApproach()
 BaseRequest.MEMFILE_MAX = 10 * 1024 * 1024
 port = int(os.getenv('SERVER_PORT', '50123'))
 print(f'Pandemic-Player listening to 0.0.0.0:{port}', flush=True)

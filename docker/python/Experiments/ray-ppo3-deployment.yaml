@@ -101,7 +101,7 @@ worker_nodes:
 # Files or directories to copy to the head and worker nodes. The format is a
 # dictionary from REMOTE_PATH: LOCAL_PATH, e.g.
 file_mounts: {
-  "/tmp/ic20rl": "/mnt/h/Documents/_EIGENE_DOKUMENTE/_Repositories/informatiCup/informaticup-2020/"
+  "/tmp/ic20rl": "/c/Users/zietl/Documents/_Eigene_Dokumente/Repositories/informaticup-2020/"
 }
 
 # List of commands that will be run before `setup_commands`. If docker is

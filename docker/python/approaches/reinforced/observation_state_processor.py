@@ -133,7 +133,6 @@ class SimpleObsStateProcessor(ObservationStateProcessor):
 
         return tuple(pathogen_representations)
 
-    # noinspection PyPep8Lambda
     @classmethod
     def _map_pathogen_status(cls, pathogen: Pathogen, game_state: GameState):
         pathogen_exists = lambda: pathogen in game_state.pathogens

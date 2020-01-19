@@ -1,5 +1,10 @@
+from approaches.approach import Approach
 from models.actions import end_round
 
+from models.gamestate import GameState
 
-def process_round(state):
-    return end_round()
+
+# noinspection PyPep8Naming
+class none(Approach):
+    def process_round(self, state: GameState):
+        return end_round()

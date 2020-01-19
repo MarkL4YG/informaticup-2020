@@ -16,14 +16,14 @@ This application is written in python and can be started either directly from th
   
 ### 2.1 Configuration and environment  
 The application port can be changed by setting the ``SERVER_PORT`` variable to a non restricted, unused port number.  
-The application comes with several different approaches located in ``docker/python/approaches``.
-The ``APPROACH`` environment variable can be used to select one of them. The value must be the file name without extension (``<approach-name>.py``). If no approach has been set, the ``random`` approach is used.  
+The application comes with several approaches located in ``docker/python/approaches``.
+The ``APPROACH`` environment variable can be used to select one of them. Its value must be the file name without extension (``<approach-name>.py``). If no approach has been set, the ``random`` approach is used.  
  
 Environment variables work for both the command line and the docker image, when passed.
 
 #### List of available approaches
 * ``none`` -> Instantly ends rounds without any other action. (For comparision purposes)  
-* ``random`` -> Selects a random action from the list of available ones.  
+* ``random_approach`` -> Selects a random action from the list of available ones.  
 * ``medication`` -> Immediately tries to develop and deploy medication to infected cities.  
 * ``vaccine`` -> Immediately tries to develop and deploy vaccines to infected cities.  
 * ``medication_and_vaccine`` -> Combination of the ``medication`` and ``vaccine`` approaches.  
@@ -36,6 +36,8 @@ Environment variables work for both the command line and the docker image, when 
   * ``combined.combined_city_stats_and_vaccine_random``  
   * ``combined.combined_city_stats_medication_and_vaccine_random``  
   * ``combined.combined_random``  
+* ``ml_a2c`` -> Advantage Actor Critic-Agent  
+* ``ml_ppo`` -> Proximal Policy Optimization-Agent  
   
 ### 2.2 Running via. Docker (Preferred)
 The Docker image ``markl4yg/informaticup-2020:latest`` can be used to spin up a standalone server that will answer requests from the ``ic20`` test application on ``http://<container-address>:<server-port>/``.  
