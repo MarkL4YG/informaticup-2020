@@ -9,7 +9,9 @@ sPort = int(os.getenv("SERVER_PORT", "50123"))
 sICTestApp = os.getenv("IC20_LOCATION", "./ic20_windows.exe")
 runCount = 0
 proc = subprocess.Popen(["/usr/bin/env", "python3", "./main.py"])
-time.sleep(2)
+
+print("Waiting so Tensorflow has time to start up - if selected.")
+time.sleep(10)
 
 nullPipe = open(os.devnull, "w")
 
