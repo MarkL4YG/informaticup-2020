@@ -44,7 +44,7 @@ class SimpleObsStateProcessor(ObservationStateProcessor):
 
     def preprocess_obs(self, game_state: GameState) -> List:
         city_states = []
-        sorted_game_state_pathogens = self.sort_pathogens(game_state.pathogens, game_state.cities)
+        sorted_game_state_pathogens = self.sort_pathogens(game_state.pathogens, game_state)
         for city in game_state.cities:
             location = (np.array([city.latitude], dtype=np.float32),
                         np.array([city.longitude], dtype=np.float32))
@@ -60,7 +60,10 @@ class SimpleObsStateProcessor(ObservationStateProcessor):
 
         return city_states[:MAX_CITIES]
 
-    def sort_pathogens(self, pathogens: List[Pathogen], cities: List[City]) -> List[Pathogen]:
+    def sort_pathogens(self, pathogens: List[Pathogen], game_state: GameState) -> List[Pathogen]:
+        """
+        Sort pathogens by relevance, e.g. 7, 3, 9, 10 -> 10, 9, 7, 3
+        """
         initial_value = 0
         sorted_pathogens = sorted(pathogens,
                                   reverse=True,
@@ -68,7 +71,7 @@ class SimpleObsStateProcessor(ObservationStateProcessor):
                                   reduce(lambda count, infected_population: count + infected_population,
                                          map(self.pathogen_sorting_strategy,
                                              filter(lambda city: pathogen in city.pathogens,
-                                                    cities), repeat(pathogen)), initial_value))
+                                                    game_state.cities), repeat(pathogen)), initial_value))
         return sorted_pathogens[:MAX_PATHOGENS]
 
     def _get_obs_space_single_city(self):
@@ -111,9 +114,9 @@ class SimpleObsStateProcessor(ObservationStateProcessor):
         :return: a list of pathogens s.t. (is_active, infected_population, np.arr[infectivity, mobility, duration, lethality]
         """
         pathogen_representations = []
-        available_pathogens = list(
+        sorted_available_pathogens = list(
             filter(lambda city_pathogen: city_pathogen in sorted_gamestate_pathogens, city_pathogens))
-        for pathogen in available_pathogens[:MAX_PATHOGENS]:
+        for pathogen in sorted_available_pathogens[:MAX_PATHOGENS]:
             status = self._map_pathogen_status(pathogen, game_state)
             infected_population = np.array([np.round(pathogen.prevalence * city_population)], dtype=np.uint32)
             pathogen_attributes = np.array([pathogen.infectivity,
@@ -123,9 +126,9 @@ class SimpleObsStateProcessor(ObservationStateProcessor):
             pathogen_representation = (status, infected_population, pathogen_attributes)
             pathogen_representations = self._update_city_pathogens_representations(pathogen_representations, pathogen,
                                                                                    pathogen_representation,
-                                                                                   available_pathogens)
+                                                                                   sorted_available_pathogens)
 
-        for _ in range(MAX_PATHOGENS - len(available_pathogens[:MAX_PATHOGENS])):
+        for _ in range(MAX_PATHOGENS - len(sorted_available_pathogens[:MAX_PATHOGENS])):
             pathogen_representations.append(self._build_pathogen_stub())
 
         return tuple(pathogen_representations)
@@ -162,8 +165,8 @@ class SimpleObsStateProcessor(ObservationStateProcessor):
 
     def _update_city_pathogens_representations(self, pathogen_list: List, pathogen: Pathogen,
                                                pathogen_representation: Tuple,
-                                               available_pathogens: List[Pathogen]) -> List:
-        pathogen_index = available_pathogens.index(pathogen)
+                                               sorted_available_pathogens: List[Pathogen]) -> List:
+        pathogen_index = sorted_available_pathogens.index(pathogen)
         while True:
             try:
                 pathogen_list[pathogen_index] = pathogen_representation
@@ -194,12 +197,7 @@ class SimpleObsStateProcessor(ObservationStateProcessor):
         return total_infected_population
 
 
-class PrevalenceObsStateProcessor(SimpleObsStateProcessor):
-    # todo?
-    pass
-
-
-def prevalence_pathogen_sorting(city: City, pathogen: Pathogen) -> float:
+def infected_population_sorting_per_city(city: City, pathogen: Pathogen) -> float:
     city_pathogen_ids = list(map(lambda city_pathogen: city_pathogen.index, city.pathogens))
     if pathogen.index in city_pathogen_ids:
         pathogen_index = city_pathogen_ids.index(pathogen.index)
